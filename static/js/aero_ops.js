@@ -99,7 +99,7 @@
         }
         const bcModule = document.getElementById("breadcrumb-module-label");
         if (bcModule && linkEl) {
-            bcModule.textContent = linkEl.getAttribute("data-title") || "Ambala Base (AB-DEMO-01)";
+            bcModule.textContent = linkEl.getAttribute("data-title") || "Operational Console";
         }
         if (sectionId === "radar" && typeof L !== "undefined") {
             setTimeout(() => {

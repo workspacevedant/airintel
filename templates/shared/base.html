@@ -74,7 +74,7 @@
         <aside class="mod-sidebar" aria-label="Primary Operational Navigation">
             <ul class="mod-nav-list">
                 <li class="mod-nav-item">
-                    <a class="mod-nav-link active" data-title="Ambala Base (AB-DEMO-01)" onclick="window.AeroOpsSwitchModule('dashboard', this)">&#9658; Airbase Dashboard</a>
+                    <a class="mod-nav-link active" data-title="{{ active_airbase_label|default:'Airbase Dashboard' }}" onclick="window.AeroOpsSwitchModule('dashboard', this)">&#9658; Airbase Dashboard</a>
                 </li>
                 <li class="mod-nav-item">
                     <a class="mod-nav-link" data-title="Base Infrastructure Registry" onclick="window.AeroOpsSwitchModule('infrastructure', this)">&#9658; Base Infrastructure</a>
@@ -97,7 +97,7 @@
                 <div style="margin-top:3px;"><strong>DATA MODE:</strong> <span class="mono">SYNTHETIC</span></div>
                 <div style="margin-top:3px;"><strong>SRID:</strong> <span class="mono">EPSG:4326</span></div>
                 <div style="margin-top:6px; border-top:1px solid #163873; padding-top:4px;">
-                    <a href="/Commander/" style="color:#d6e0f0; text-decoration:underline;" onclick="window.location.href='{% url 'commander_dashboard' %}'; return false;">Airbase View</a> &middot;
+                    <a href="/commander/" style="color:#d6e0f0; text-decoration:underline;" onclick="window.location.href='{% url 'commander_dashboard' %}'; return false;">Airbase View</a> &middot;
                     <a href="/squadron/" style="color:#d6e0f0; text-decoration:underline;">Squadron View</a> &middot;
                     <a href="/zonal/" style="color:#d6e0f0; text-decoration:underline;">Zonal View</a>
                 </div>
@@ -108,7 +108,7 @@
             <!-- Breadcrumb Bar matching Variant C -->
             <div class="breadcrumb-bar">
                 <div>
-                    Home &gt; Operations &gt; <strong id="breadcrumb-module-label">Ambala Base (AB-DEMO-01)</strong>
+                    Home &gt; Operations &gt; <strong id="breadcrumb-module-label">{{ active_airbase_label|default:"Operational Console" }}</strong>
                 </div>
                 <div class="mono" style="font-size:11px; color:#4a5568;">
                     Scope Guard: <strong>ENFORCED (HTTP 403 ON CROSS-SCOPE)</strong>

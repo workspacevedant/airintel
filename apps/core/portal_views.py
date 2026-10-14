@@ -46,24 +46,9 @@ def _check_ip_rate_limit(request: HttpRequest, key_prefix: str, limit: int = 5, 
 def commander_dashboard_page(request: HttpRequest) -> HttpResponse:
     """Renders the primary Variant C Compact Multi-Section Layout dashboard."""
     user = request.user
-    role_label = "Airbase Commander"
-    airbase_label = "Avalon Forward Base (AB-DEMO-01)"
-    can_sim = False
-
-    try:
-        ctx = get_user_scope(user)
-        can_sim = ctx.can_control_simulation
-        if ctx.is_zonal_commander:
-            role_label = "Zonal Commander"
-            airbase_label = "Sector 7 Forward Zone (ZONE-DEMO-A)"
-        elif ctx.is_squadron_leader:
-            role_label = "Squadron Leader"
-            airbase_label = f"{ctx.assigned_squadron_code or 'Assigned Squadron'} · AB-DEMO-01"
-        else:
-            role_label = "Airbase Commander"
-            airbase_label = f"{ctx.assigned_airbase_code or 'Avalon Forward Base'} (AB-DEMO-01)"
-    except Exception:
-        pass
+    ctx = get_user_scope(user)
+    airbase_label = ctx.location_label
+    role_label = ctx.role_label
 
     return render(
         request,
@@ -72,7 +57,9 @@ def commander_dashboard_page(request: HttpRequest) -> HttpResponse:
             "page_title": airbase_label,
             "active_airbase_label": airbase_label,
             "active_role_label": role_label,
-            "can_control_simulation": can_sim,
+            "active_squadron_label": ctx.assigned_squadron_name or ctx.assigned_squadron_code or "Squadron",
+            "active_zone_label": ctx.assigned_zone_name or ctx.assigned_zone_code or "Sector",
+            "can_control_simulation": ctx.can_control_simulation,
         },
     )
 
@@ -82,14 +69,16 @@ def squadron_dashboard_page(request: HttpRequest) -> HttpResponse:
     """Renders the Squadron Leader scoped view."""
     user = request.user
     ctx = get_user_scope(user)
-    sq_label = ctx.assigned_squadron_code or "SQ-DEMO-01"
+
     return render(
         request,
         "squadron/dashboard.html",
         {
-            "page_title": f"Squadron Operations ({sq_label})",
-            "active_airbase_label": f"{sq_label} · Avalon Forward Base",
-            "active_role_label": "Squadron Leader",
+            "page_title": f"Squadron Operations ({ctx.assigned_squadron_code or 'Squadron'})",
+            "active_airbase_label": ctx.location_label,
+            "active_role_label": ctx.role_label,
+            "active_squadron_label": ctx.assigned_squadron_name or ctx.assigned_squadron_code or "Squadron",
+            "active_zone_label": ctx.assigned_zone_name or ctx.assigned_zone_code or "Sector",
             "can_control_simulation": False,
         },
     )
@@ -100,14 +89,17 @@ def zonal_dashboard_page(request: HttpRequest) -> HttpResponse:
     """Renders the Zonal Commander cross-airbase view."""
     user = request.user
     ctx = get_user_scope(user)
-    zone_label = ctx.assigned_zone_code or "ZONE-DEMO-A"
+    zone_code = ctx.assigned_zone_code or "ZONE"
+
     return render(
         request,
         "commander/zonal_dashboard.html",
         {
-            "page_title": f"Zonal Command Oversight ({zone_label})",
-            "active_airbase_label": f"Northern Sector Airspace ({zone_label})",
-            "active_role_label": "Zonal Commander",
+            "page_title": f"Zonal Command Oversight ({zone_code})",
+            "active_airbase_label": ctx.location_label,
+            "active_role_label": ctx.role_label,
+            "active_squadron_label": ctx.assigned_squadron_name or ctx.assigned_squadron_code or "Squadron",
+            "active_zone_label": ctx.assigned_zone_name or ctx.assigned_zone_code or "Sector",
             "can_control_simulation": ctx.can_control_simulation,
         },
     )

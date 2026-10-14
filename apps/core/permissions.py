@@ -36,6 +36,10 @@ class UserScopeContext:
     squadron_ids: Set[str] = field(default_factory=set)
     squadron_codes: Set[str] = field(default_factory=set)
     can_control_simulation: bool = False
+    primary_assignment: Optional[RoleAssignment] = None
+    primary_airbase: Optional[Airbase] = None
+    primary_squadron: Optional[Squadron] = None
+    primary_zone: Optional[Zone] = None
 
     @property
     def is_zonal_commander(self) -> bool:
@@ -59,6 +63,68 @@ class UserScopeContext:
             if r in self.roles:
                 return r
         return None
+
+    @property
+    def assigned_airbase_code(self) -> Optional[str]:
+        if self.primary_airbase:
+            return self.primary_airbase.code
+        return next(iter(self.airbase_codes), None)
+
+    @property
+    def assigned_airbase_name(self) -> Optional[str]:
+        if self.primary_airbase:
+            return self.primary_airbase.name
+        return None
+
+    @property
+    def assigned_squadron_code(self) -> Optional[str]:
+        if self.primary_squadron:
+            return self.primary_squadron.code
+        return next(iter(self.squadron_codes), None)
+
+    @property
+    def assigned_squadron_name(self) -> Optional[str]:
+        if self.primary_squadron:
+            return self.primary_squadron.name
+        return None
+
+    @property
+    def assigned_zone_code(self) -> Optional[str]:
+        if self.primary_zone:
+            return self.primary_zone.code
+        return next(iter(self.zone_codes), None)
+
+    @property
+    def assigned_zone_name(self) -> Optional[str]:
+        if self.primary_zone:
+            return self.primary_zone.name
+        return None
+
+    @property
+    def role_label(self) -> str:
+        if self.is_zonal_commander:
+            return "Zonal Commander"
+        elif self.is_airbase_commander:
+            return "Airbase Commander"
+        elif self.is_squadron_leader:
+            return "Squadron Leader"
+        return "Authorised Officer"
+
+    @property
+    def location_label(self) -> str:
+        if self.is_zonal_commander:
+            if self.primary_zone:
+                return f"{self.primary_zone.name} ({self.primary_zone.code})"
+            return "Northern Sector Airspace (ZONE-DEMO-A)"
+        elif self.is_airbase_commander:
+            if self.primary_airbase:
+                return f"{self.primary_airbase.name} ({self.primary_airbase.code})"
+            return "Forward Air Base"
+        elif self.is_squadron_leader:
+            sq_part = f"{self.primary_squadron.name} ({self.primary_squadron.code})" if self.primary_squadron else "Assigned Squadron"
+            ab_part = f" · {self.primary_airbase.name} ({self.primary_airbase.code})" if self.primary_airbase else ""
+            return f"{sq_part}{ab_part}"
+        return "Unassigned Scope"
 
 
 def log_security_denial(
@@ -96,15 +162,20 @@ def get_user_scope(user: User) -> UserScopeContext:
             user=user,
             status=RoleAssignment.AssignmentStatus.ACTIVE,
         )
-        .select_related("zone", "airbase", "Airbase__zone" if False else "airbase__zone", "squadron", "squadron__airbase")
+        .select_related("zone", "airbase", "airbase__zone", "squadron", "squadron__airbase")
     )
 
     for assignment in assignments:
         ctx.roles.add(assignment.role)
+        if ctx.primary_assignment is None:
+            ctx.primary_assignment = assignment
+
         if assignment.can_control_simulation:
             ctx.can_control_simulation = True
 
         if assignment.role == DesignationChoices.ZONAL_COMMANDER and assignment.zone:
+            if ctx.primary_zone is None:
+                ctx.primary_zone = assignment.zone
             ctx.zone_ids.add(str(assignment.zone.id))
             ctx.zone_codes.add(assignment.zone.code)
             for ab in Airbase.objects.filter(zone=assignment.zone).prefetch_related("squadrons"):
@@ -116,6 +187,10 @@ def get_user_scope(user: User) -> UserScopeContext:
 
         elif assignment.role == DesignationChoices.AIRBASE_COMMANDER and assignment.airbase:
             ab = assignment.airbase
+            if ctx.primary_airbase is None:
+                ctx.primary_airbase = ab
+            if ab.zone and ctx.primary_zone is None:
+                ctx.primary_zone = ab.zone
             ctx.airbase_ids.add(str(ab.id))
             ctx.airbase_codes.add(ab.code)
             if ab.zone_id:
@@ -127,6 +202,10 @@ def get_user_scope(user: User) -> UserScopeContext:
 
         elif assignment.role == DesignationChoices.SQUADRON_LEADER and assignment.squadron:
             sq = assignment.squadron
+            if ctx.primary_squadron is None:
+                ctx.primary_squadron = sq
+            if sq.airbase and ctx.primary_airbase is None:
+                ctx.primary_airbase = sq.airbase
             ctx.squadron_ids.add(str(sq.id))
             ctx.squadron_codes.add(sq.code)
             if sq.airbase_id:
