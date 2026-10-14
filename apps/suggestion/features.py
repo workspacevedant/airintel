@@ -31,6 +31,24 @@ USAGE_BAND_MAP = {"LOW": 0, "MEDIUM": 1, "HIGH": 2}
 AGE_BAND_MAP = {"1-3_YEARS": 0, "3-5_YEARS": 1, "5-8_YEARS": 2, "8+_YEARS": 3}
 
 
+FEATURE_BOUNDS: Dict[str, Tuple[float, float]] = {
+    # Model A: 6 Features (Section 08)
+    "days_since_last_service": (0.0, 3650.0),
+    "days_until_next_due": (-365.0, 365.0),
+    "past_fault_count": (0.0, 500.0),
+    "open_maintenance_tasks": (0.0, 50.0),
+    "usage_band_encoded": (0.0, 2.0),
+    "age_band_encoded": (0.0, 3.0),
+    # Model B: 6 Features (Section 08)
+    "aircraft_ready_ratio": (0.0, 1.0),
+    "crew_fdtl_compliant": (0.0, 1.0),
+    "runway_primary_clear": (0.0, 1.0),
+    "fuel_reserves_adequacy": (0.0, 5.0),
+    "maintenance_conflict_score": (0.0, 1.0),
+    "data_freshness_score": (0.0, 1.0),
+}
+
+
 def extract_equipment_features(equipment: Equipment, reference_time=None) -> Dict[str, float]:
     """
     Extracts and validates Model A features for a single Equipment record (Section 08).
@@ -57,7 +75,8 @@ def extract_equipment_features(equipment: Equipment, reference_time=None) -> Dic
 
 def validate_feature_vector(features: Dict[str, Any], expected_schema: List[str]) -> Tuple[bool, List[str]]:
     """
-    Validates feature dictionary at inference time against expected schema and numeric bounds (Section 08 & 14).
+    Validates feature dictionary at inference time against expected schema, nulls, types,
+    and numerical ranges for ALL features (Section 08 & Phase 6 Honesty Rules).
     """
     errors: List[str] = []
     if not isinstance(features, dict):
@@ -74,21 +93,21 @@ def validate_feature_vector(features: Dict[str, Any], expected_schema: List[str]
         try:
             fval = float(val)
         except (TypeError, ValueError):
-            errors.append(f"Non-numeric value in feature: {col}")
+            errors.append(f"Non-numeric type for feature: {col}")
             continue
 
-        if col == "days_since_last_service" and (fval < 0 or fval > 3650):
-            errors.append(f"Out-of-range {col}: {fval}")
-        elif col == "past_fault_count" and (fval < 0 or fval > 500):
-            errors.append(f"Out-of-range {col}: {fval}")
+        if col in FEATURE_BOUNDS:
+            min_bound, max_bound = FEATURE_BOUNDS[col]
+            if fval < min_bound or fval > max_bound:
+                errors.append(f"Out-of-range value for {col}: {fval} (expected [{min_bound}, {max_bound}])")
 
     return len(errors) == 0, errors
 
 
-def generate_synthetic_readiness_dataset(n_samples: int = 600, seed: int = 26250) -> pd.DataFrame:
+def generate_synthetic_readiness_dataset(n_samples: int = 5000, seed: int = 26250) -> pd.DataFrame:
     """
-    Generates a documented, internally consistent synthetic dataset for Model A
-    (7-day equipment unavailability prediction) with a time-ordered group column (Section 08).
+    Generates a documented synthetic dataset for Model A (7-day equipment unavailability prediction).
+    Labels sampled with Bernoulli(probability), not thresholded, with at least 5,000 rows (Section 08).
     """
     rng = np.random.default_rng(seed)
     days_since = rng.uniform(1, 35, size=n_samples).round(1)
@@ -97,9 +116,9 @@ def generate_synthetic_readiness_dataset(n_samples: int = 600, seed: int = 26250
     open_tasks = rng.binomial(n=2, p=0.28, size=n_samples)
     usage_band = rng.choice([0, 1, 2], size=n_samples, p=[0.30, 0.45, 0.25])
     age_band = rng.choice([0, 1, 2, 3], size=n_samples, p=[0.35, 0.35, 0.20, 0.10])
-    time_Window = np.arange(n_samples) // 50  # Time-based split index to prevent leakage
+    time_window = np.arange(n_samples) // (n_samples // 12)  # 12 time-ordered groups
 
-    # Ground-truth synthetic log-odds (no post-outcome leakage)
+    # Ground-truth synthetic log-odds
     logit = (
         -2.4
         + 0.08 * days_since
@@ -111,11 +130,12 @@ def generate_synthetic_readiness_dataset(n_samples: int = 600, seed: int = 26250
         + rng.normal(0, 0.35, size=n_samples)
     )
     prob = 1.0 / (1.0 + np.exp(-logit))
-    target = (prob >= 0.50).astype(int)
+    # Labels sampled with Bernoulli(probability), not thresholded (Phase 6 rule)
+    target = rng.binomial(n=1, p=prob).astype(int)
 
     return pd.DataFrame(
         {
-            "time_group": time_Window,
+            "time_group": time_window,
             "days_since_last_service": days_since,
             "days_until_next_due": days_until,
             "past_fault_count": past_faults,
@@ -127,9 +147,9 @@ def generate_synthetic_readiness_dataset(n_samples: int = 600, seed: int = 26250
     )
 
 
-def generate_synthetic_option_scoring_dataset(n_samples: int = 500, seed: int = 26250) -> pd.DataFrame:
+def generate_synthetic_option_scoring_dataset(n_samples: int = 5000, seed: int = 26250) -> pd.DataFrame:
     """
-    Generates a documented synthetic dataset for Model B (generic option scoring) (Section 08).
+    Generates a documented synthetic dataset for Model B (generic option scoring) with at least 5,000 rows.
     """
     rng = np.random.default_rng(seed + 100)
     aircraft_ready_ratio = rng.uniform(0.3, 1.0, size=n_samples).round(3)
@@ -138,7 +158,7 @@ def generate_synthetic_option_scoring_dataset(n_samples: int = 500, seed: int = 
     fuel_reserves_adequacy = rng.uniform(0.4, 1.0, size=n_samples).round(3)
     maintenance_conflict_score = rng.uniform(0.0, 0.8, size=n_samples).round(3)
     data_freshness_score = rng.choice([0.4, 0.75, 1.0], size=n_samples, p=[0.1, 0.2, 0.7])
-    scenario_group = np.arange(n_samples) // 25
+    scenario_group = np.arange(n_samples) // (n_samples // 20)
 
     raw_score = (
         0.30 * aircraft_ready_ratio

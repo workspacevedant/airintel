@@ -42,7 +42,7 @@ def train_and_register_models(seed: int = 26250) -> Dict[str, Any]:
     # ------------------------------------------------------------------
     # 1. Train Model A — 7-Day Equipment Readiness Prediction
     # ------------------------------------------------------------------
-    df_a = generate_synthetic_readiness_dataset(n_samples=600, seed=seed)
+    df_a = generate_synthetic_readiness_dataset(n_samples=5000, seed=seed)
     # Time-based split: groups 0..8 train, 9..11 test (prevents leakage)
     train_a = df_a[df_a["time_group"] < 9]
     test_a = df_a[df_a["time_group"] >= 9]
@@ -102,7 +102,7 @@ def train_and_register_models(seed: int = 26250) -> Dict[str, Any]:
     # ------------------------------------------------------------------
     # 2. Train Model B — Generic Option Scoring
     # ------------------------------------------------------------------
-    df_b = generate_synthetic_option_scoring_dataset(n_samples=500, seed=seed)
+    df_b = generate_synthetic_option_scoring_dataset(n_samples=5000, seed=seed)
     train_b = df_b[df_b["scenario_group"] < 15]
     test_b = df_b[df_b["scenario_group"] >= 15]
 

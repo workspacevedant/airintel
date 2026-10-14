@@ -178,6 +178,7 @@ def predict_equipment_readiness(
             "reasons": ["Input feature validation failed; deterministic safety baseline applied."] + schema_errors,
             "input_snapshot": raw_features,
             "data_mode": "synthetic",
+            "disclaimer": "synthetic, advisory only",
             "created_at": timezone.now().isoformat(),
         }
 
@@ -205,6 +206,7 @@ def predict_equipment_readiness(
             "reasons": fallback_reasons,
             "input_snapshot": raw_features,
             "data_mode": "synthetic",
+            "disclaimer": "synthetic, advisory only",
             "created_at": timezone.now().isoformat(),
         }
 
@@ -224,6 +226,7 @@ def predict_equipment_readiness(
         "reasons": reasons,
         "input_snapshot": raw_features,
         "data_mode": "synthetic",
+        "disclaimer": "synthetic, advisory only",
         "created_at": timezone.now().isoformat(),
     }
 
@@ -411,6 +414,7 @@ def score_operational_options(
                     "fallback_used": fallback_used,
                     "reasons": violations,
                     "data_mode": "synthetic",
+                    "disclaimer": "synthetic, advisory only",
                 }
             )
             continue
@@ -479,6 +483,7 @@ def score_operational_options(
                 "input_snapshot": feat_dict,
                 "reasons": reasons_out,
                 "data_mode": "synthetic",
+                "disclaimer": "synthetic, advisory only",
             }
         )
 
