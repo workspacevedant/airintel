@@ -241,7 +241,7 @@ class Squadron(models.Model):
         related_name="led_squadrons",
         db_index=True,
     )
-    assigned_aircraft_type = models.CharField(max_length=64, default="Dassault Rafale / Su-30MKI")
+    assigned_aircraft_type = models.CharField(max_length=64, default="Type-A Fighter / Type-B Multirole")
     status = models.CharField(
         max_length=24,
         choices=SquadronStatus.choices,
@@ -367,10 +367,14 @@ class Equipment(models.Model):
     """
 
     class EquipmentCategory(models.TextChoices):
-        SU_30MKI = "Su-30MKI", "Su-30MKI"
-        DASSAULT_RAFALE = "Dassault Rafale", "Dassault Rafale"
-        TEJAS_MK1A = "HAL Tejas Mk1A", "HAL Tejas Mk1A"
+        TYPE_A = "Type-A Fighter", "Type-A Fighter"
+        TYPE_B = "Type-B Multirole", "Type-B Multirole"
+        TYPE_C = "Type-C Light Combat", "Type-C Light Combat"
         RADAR_SUPPORT = "Ground Support / Radar Unit", "Ground Support / Radar Unit"
+        # Inert reference data choices
+        SU_30MKI = "Su-30MKI", "Su-30MKI (Inert Reference)"
+        DASSAULT_RAFALE = "Dassault Rafale", "Dassault Rafale (Inert Reference)"
+        TEJAS_MK1A = "HAL Tejas Mk1A", "HAL Tejas Mk1A (Inert Reference)"
 
     class EquipmentStatus(models.TextChoices):
         AVAILABLE = "AVAILABLE", "Available"
@@ -389,7 +393,7 @@ class Equipment(models.Model):
     category = models.CharField(
         max_length=64,
         choices=EquipmentCategory.choices,
-        default=EquipmentCategory.DASSAULT_RAFALE,
+        default=EquipmentCategory.TYPE_A,
         db_index=True,
     )
     squadron = models.ForeignKey(
@@ -819,7 +823,7 @@ class Notification(models.Model):
 class Order(models.Model):
     """
     Role-scoped operational/drill coordination order (Section 05.2, 09 & Appendix A).
-    Example: ORD-0092 ("Scramble 2x Interceptors to Sector 7").
+    Example: ORD-0092 ("Dispatch Standby Readiness Pair to Sector 7").
     """
 
     class Priority(models.TextChoices):

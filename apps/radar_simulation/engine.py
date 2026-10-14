@@ -242,8 +242,8 @@ class HybridRadarEngine:
             event_id = f"evt-demo-{self.seed}-{next_seq:04d}"
             event_type = "TRACK_UPDATED"
             source_id = "SENSOR-DEMO-01"
-            track_code = "H-01 J-20"
-            callsign_label = "H-01 J-20 (Synthetic High-Altitude Profile)"
+            track_code = "SYNTH-TRACK-01"
+            callsign_label = "SYNTH-TRACK-01 (Synthetic High-Altitude Profile)"
             zone_code = "ZONE-DEMO-A"
             lat = round(30.9500 + rng.uniform(-0.08, 0.08), 4)
             lon = round(76.9500 + rng.uniform(-0.08, 0.08), 4)

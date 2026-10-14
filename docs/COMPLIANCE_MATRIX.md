@@ -20,7 +20,7 @@ Status Keys:
 | **S02-04** | Sec 02 | Dynamic response to change: equipment outage or scenario event changes displayed state & triggers reevaluation | `apps/core/services.py:update_equipment_status`, `recalculate_airbase_readiness` | `apps.core.tests.test_part2_acceptance.AeroOpsPart2AcceptanceTests.test_equipment_status_transition_and_append_only_audit_log` | PASS |
 | **S02-05** | Sec 02 | Explainable suggestions: each suggestion includes inputs, model/rule version, timestamp, and reason codes | `apps/suggestion/predict.py:predict_equipment_readiness`, `apps/suggestion/models.py:Suggestion` | `apps.core.tests.test_suggestion.test_explainable_suggestion_output` | PARTIAL |
 | **S02-06** | Sec 02 | Reproducible judging demo: named scenario can be reset and replayed to produce exact event sequence | `apps/radar_simulation/engine.py:control(action="reset")`, `seed_demo_data.py` | `apps.core.tests.test_part2_acceptance.AeroOpsPart2AcceptanceTests.test_hybrid_radar_simulation_fault_injection_and_idempotency` | PARTIAL |
-| **S02-07** | Sec 02 | Operational transparency: simulation mode clearly visible; every event has source, timestamp, synthetic ID | `templates/shared/base.html`, `apps/core/models.py:Event` | `apps.core.tests.test_simulation.test_synthetic_event_transparency_fields` | PARTIAL |
+| **S02-07** | Sec 02 | Operational transparency: simulation mode clearly visible; every event has source, timestamp, synthetic ID | `templates/shared/base.html`, `apps/core/models.py:Event` | `apps.core.tests.test_phase3_scope_cleanup.Phase3ScopeCleanupTests.test_rendered_portal_displays_simulation_and_synthetic_badges` | PASS |
 | **S04-01** | Sec 04 | 3 User Roles supported: Airbase Commander, Squadron Leader, Zonal Commander | `apps/core/models.py:DesignationChoices`, `RoleAssignment` | `apps.core.tests.test_rbac.test_three_user_roles_defined` | PASS |
 | **S04-02** | Sec 04 | Self-selected designation at signup; safe default scope (no airbase or zone visible until approved) | `apps/core/views.py:auth_register_view`, `apps/core/permissions.py:get_user_scope` | `apps.core.tests.test_phase1_security.Phase1SecurityTests.test_registration_safe_default_scope_and_admin_review_approval` | PASS |
 | **S04-03** | Sec 04 | Airbase Commander role scope: airbase-wide view, register airbase structure, override squadron equipment with audit | `apps/core/permissions.py:get_user_scope`, `apps/core/services.py:update_equipment_status` | `apps.core.tests.test_phase2_rbac.Phase2RBACTests.test_airbase_commander_capabilities_and_boundaries` | PASS |
@@ -54,8 +54,8 @@ Status Keys:
 | **S07-04** | Sec 07 | Group messages by authorized scope (airbase or zone); reject anonymous or untrusted group subscription | `apps/radar_simulation/consumers.py:EventConsumer.connect` | `apps.core.tests.test_ws.test_websocket_scoped_subscription` | PARTIAL |
 | **S07-05** | Sec 07 | Reconnect with backoff and refresh authoritative state; HTTP polling fallback | `apps/radar_simulation/consumers.py`, `static/js/aero_ops.js` | `apps.core.tests.test_ws.test_polling_fallback_contract` | PARTIAL |
 | **S08-01** | Sec 08 | Model A (Readiness Prediction): estimate 7-day equipment unavailability probability on synthetic records | `apps/suggestion/predict.py:predict_equipment_readiness`, `apps/suggestion/train.py` | `apps.core.tests.test_suggestion.test_model_a_readiness_inference` | PASS |
-| **S08-02** | Sec 08 | Model B (Generic Option Scoring): score generic alternatives against labeled synthetic dataset | `apps/suggestion/predict.py:score_operational_options`, `apps/suggestion/train.py` | `apps.core.tests.test_suggestion.test_model_b_option_scoring` | PASS |
-| **S08-03** | Sec 08 | Hard deterministic feasibility gate: runway length, fuel reserve, crew FDTL evaluated FIRST by deterministic code | `apps/suggestion/predict.py:score_operational_options` | `apps.core.tests.test_suggestion.test_hard_deterministic_gates` | PASS |
+| **S08-02** | Sec 08 | Model B (Generic Option Scoring): score generic alternatives against labeled synthetic dataset | `apps/suggestion/predict.py:score_operational_options`, `apps/suggestion/train.py` | `apps.core.tests.test_phase3_scope_cleanup.Phase3ScopeCleanupTests.test_operational_options_use_generic_fictional_ids` | PASS |
+| **S08-03** | Sec 08 | Hard deterministic feasibility gate: runway length, fuel reserve, crew FDTL evaluated FIRST by deterministic code | `apps/suggestion/predict.py:score_operational_options` | `apps.core.tests.test_phase3_scope_cleanup.Phase3ScopeCleanupTests.test_deterministic_constraint_gate_blocks_infeasible_option` | PASS |
 | **S08-04** | Sec 08 | Baseline comparison: compare XGBoost against logistic regression / weighted rules; report ROC-AUC, NDCG, calibration | `apps/suggestion/train.py`, `apps/suggestion/models.py:ModelVersion` | `apps.core.tests.test_suggestion.test_baseline_model_comparison` | PASS |
 | **S08-05** | Sec 08 | Resilient fallback: missing or invalid artifact automatically falls back to deterministic rule logic | `apps/suggestion/predict.py:FALLBACK_MODEL_VERSION` | `apps.core.tests.test_suggestion.test_missing_artifact_fallback` | PASS |
 | **S08-06** | Sec 08 | Advisory disclaimers: show uncertainty, data freshness, synthetic label, and reason codes | `apps/suggestion/predict.py`, `templates/commander/_variant_c_body.html` | `apps.core.tests.test_suggestion.test_advisory_disclaimers` | PASS |
@@ -128,7 +128,7 @@ Status Keys:
 
 ## Baseline Summary Statistics
 - **Total Requirements Tracked**: 62
-- **PASS**: 35 (56.5%)
-- **PARTIAL**: 23 (37.1%)
+- **PASS**: 39 (62.9%)
+- **PARTIAL**: 19 (30.6%)
 - **MISSING**: 4 (6.5%)
 - **FAIL**: 0 (0.0%)

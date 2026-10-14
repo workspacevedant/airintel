@@ -277,7 +277,7 @@ class Command(BaseCommand):
                 "name": "No. 17 Squadron (Golden Arrows — Fictional Demo)",
                 "airbase": airbase_01,
                 "leader_user": sqldr_user,
-                "assigned_aircraft_type": "Dassault Rafale / Su-30MKI",
+                "assigned_aircraft_type": "Type-A Fighter / Type-B Multirole",
                 "status": Squadron.SquadronStatus.ACTIVE,
                 "created_at": FIXED_BASE_TIME - timedelta(days=14),
             },
@@ -290,7 +290,7 @@ class Command(BaseCommand):
                 "name": "No. 45 Surveillance Squadron (Fictional Demo)",
                 "airbase": airbase_01,
                 "leader_user": None,
-                "assigned_aircraft_type": "Su-30MKI",
+                "assigned_aircraft_type": "Type-B Multirole",
                 "status": Squadron.SquadronStatus.ACTIVE,
                 "created_at": FIXED_BASE_TIME - timedelta(days=14),
             },
@@ -345,10 +345,10 @@ class Command(BaseCommand):
             fictional_code="RF-102",
             defaults={
                 "id": det_uuid("equip-rf-102"),
-                "category": Equipment.EquipmentCategory.DASSAULT_RAFALE,
+                "category": Equipment.EquipmentCategory.TYPE_A,
                 "squadron": squadron_01,
                 "airbase": airbase_01,
-                "payload_config": "QRA Interceptor / Patrol Pod",
+                "payload_config": "Standby Readiness Patrol Pod",
                 "weight_delta_kg": 1250,
                 "combat_radius_km": 1850,
                 "status": Equipment.EquipmentStatus.AVAILABLE,
@@ -358,7 +358,7 @@ class Command(BaseCommand):
                 "past_fault_count": 0,
                 "usage_band": "LOW",
                 "age_band": "1-3_YEARS",
-                "notes": "Primary readiness interceptor pair #1 on QRA pad.",
+                "notes": "Primary readiness pair #1 on readiness apron.",
             },
         )
 
@@ -366,10 +366,10 @@ class Command(BaseCommand):
             fictional_code="RF-104",
             defaults={
                 "id": det_uuid("equip-rf-104"),
-                "category": Equipment.EquipmentCategory.DASSAULT_RAFALE,
+                "category": Equipment.EquipmentCategory.TYPE_A,
                 "squadron": squadron_01,
                 "airbase": airbase_01,
-                "payload_config": "QRA Interceptor / Patrol Pod",
+                "payload_config": "Standby Readiness Patrol Pod",
                 "weight_delta_kg": 1250,
                 "combat_radius_km": 1850,
                 "status": Equipment.EquipmentStatus.AVAILABLE,
@@ -379,7 +379,7 @@ class Command(BaseCommand):
                 "past_fault_count": 1,
                 "usage_band": "MEDIUM",
                 "age_band": "1-3_YEARS",
-                "notes": "Primary readiness interceptor pair #2 on QRA pad.",
+                "notes": "Primary readiness pair #2 on readiness apron.",
             },
         )
 
@@ -387,7 +387,7 @@ class Command(BaseCommand):
             fictional_code="SB-512",
             defaults={
                 "id": det_uuid("equip-sb-512"),
-                "category": Equipment.EquipmentCategory.SU_30MKI,
+                "category": Equipment.EquipmentCategory.TYPE_B,
                 "squadron": squadron_01,
                 "airbase": airbase_01,
                 "payload_config": "Extended Endurance Surveillance Config",
@@ -408,7 +408,7 @@ class Command(BaseCommand):
             fictional_code="SB-514",
             defaults={
                 "id": det_uuid("equip-sb-514"),
-                "category": Equipment.EquipmentCategory.SU_30MKI,
+                "category": Equipment.EquipmentCategory.TYPE_B,
                 "squadron": squadron_01,
                 "airbase": airbase_01,
                 "payload_config": "Standard Patrol Config",
@@ -429,7 +429,7 @@ class Command(BaseCommand):
             fictional_code="EQ-DEMO-014",
             defaults={
                 "id": det_uuid("equip-eq-demo-014"),
-                "category": Equipment.EquipmentCategory.TEJAS_MK1A,
+                "category": Equipment.EquipmentCategory.TYPE_C,
                 "squadron": squadron_02,
                 "airbase": airbase_01,
                 "payload_config": "Light Reconnaissance Config",
@@ -442,7 +442,7 @@ class Command(BaseCommand):
                 "past_fault_count": 0,
                 "usage_band": "LOW",
                 "age_band": "1-3_YEARS",
-                "notes": "Appendix A canonical reference equipment item.",
+                "notes": "Synthetic canonical reference equipment item.",
             },
         )
 
@@ -503,7 +503,7 @@ class Command(BaseCommand):
             id=det_uuid("crew-alpha-flight"),
             defaults={
                 "squadron": squadron_01,
-                "crew_ref": "Flt. Lt. A. Deshmukh & Wg. Cdr. M. Prasad (QRA Pair Alpha)",
+                "crew_ref": "Flt. Lt. A. Deshmukh & Wg. Cdr. M. Prasad (Readiness Pair Alpha)",
                 "first_name": "Arjun",
                 "last_name": "Deshmukh",
                 "crew_code": "PLT-17-001",
@@ -514,7 +514,7 @@ class Command(BaseCommand):
                 "rest_required": False,
                 "qualification_status": CrewReadiness.QualificationStatus.QUALIFIED,
                 "report_status": "REVIEWED",
-                "notes": "Cleared for immediate Sector 7 QRA dispatch (assigned to RF-102 & RF-104).",
+                "notes": "Cleared for immediate Sector 7 readiness dispatch (assigned to RF-102 & RF-104).",
                 "updated_by": sqldr_user,
                 "updated_at": FIXED_BASE_TIME - timedelta(minutes=15),
             },
@@ -535,7 +535,7 @@ class Command(BaseCommand):
                 "rest_required": False,
                 "qualification_status": CrewReadiness.QualificationStatus.QUALIFIED,
                 "report_status": "REVIEWED",
-                "notes": "Qualified on Su-30MKI (SB-512).",
+                "notes": "Qualified on Type-B Multirole (SB-512).",
                 "updated_by": sqldr_user,
                 "updated_at": FIXED_BASE_TIME - timedelta(minutes=10),
             },
@@ -569,11 +569,11 @@ class Command(BaseCommand):
                 "target_zone": zone_a,
                 "target_airbase": airbase_01,
                 "target_squadron": squadron_01,
-                "title": "Scramble 2x Interceptors to Sector 7",
+                "title": "Dispatch Standby Readiness Pair to Sector 7",
                 "body": (
-                    "SYNTHETIC DRILL DIRECTIVE ORD-0092: Dispatch 2x ready interceptor aircraft from "
+                    "SYNTHETIC DRILL DIRECTIVE ORD-0092: Bring standby unit to ready state and dispatch 2x ready aircraft from "
                     "Avalon Forward Base (AB-DEMO-01 / SQ-DEMO-01) to Sector 7 (ZONE-DEMO-A) for "
-                    "visual identification and airspace surveillance of synthetic track H-01 J-20. "
+                    "airspace surveillance of synthetic track SYNTH-TRACK-01. "
                     "Use Runway 09/27 (CLEAR) and verify FDTL compliance prior to tasking."
                 ),
                 "priority": Order.Priority.FLASH,
@@ -689,10 +689,10 @@ class Command(BaseCommand):
 
         track_h01, _ = Track.objects.update_or_create(
             run=sim_run,
-            fictional_track_code="H-01 J-20",
+            fictional_track_code="SYNTH-TRACK-01",
             defaults={
                 "id": det_uuid("track-h01-j20"),
-                "callsign_label": "H-01 J-20 (Synthetic High-Altitude Profile)",
+                "callsign_label": "SYNTH-TRACK-01 (Synthetic High-Altitude Profile)",
                 "state": Track.TrackState.UNDER_REVIEW,
                 "last_position": Point(77.1200, 31.1800, srid=4326),
                 "bearing": 215.0,
@@ -711,7 +711,7 @@ class Command(BaseCommand):
             fictional_track_code="TRACK-DEMO-12",
             defaults={
                 "id": det_uuid("track-demo-12"),
-                "callsign_label": "TRACK-DEMO-12 (Synthetic Border Buffer Track)",
+                "callsign_label": "TRACK-DEMO-12 (Synthetic Perimeter Buffer Track)",
                 "state": Track.TrackState.UNDER_REVIEW,
                 "last_position": Point(78.0500, 30.8800, srid=4326),
                 "bearing": 260.0,
@@ -739,7 +739,7 @@ class Command(BaseCommand):
                 range_km=94.5,
                 quality="simulated",
                 payload={
-                    "fictional_track_code": "H-01 J-20",
+                    "fictional_track_code": "SYNTH-TRACK-01",
                     "zone_ref": "ZONE-DEMO-A",
                     "altitude_m": 11200.0,
                 },
@@ -799,7 +799,7 @@ class Command(BaseCommand):
                 "received_at": FIXED_BASE_TIME,
                 "quality": "simulated",
                 "payload": {
-                    "track_ref": "H-01 J-20",
+                    "track_ref": "SYNTH-TRACK-01",
                     "zone_ref": "ZONE-DEMO-A",
                     "order_code": "ORD-0092",
                     "state": "coordination_required",
@@ -815,8 +815,8 @@ class Command(BaseCommand):
                 "severity": Alert.Severity.HIGH,
                 "zone": zone_a,
                 "airbase": airbase_01,
-                "title": "Sector 7 Track H-01 J-20 — Urgent Dispatch Coordination (ORD-0092)",
-                "summary": "Synthetic track H-01 J-20 detected at 94.5 km bearing 215°. Zonal Order ORD-0092 awaits acknowledgement.",
+                "title": "Sector 7 Track SYNTH-TRACK-01 — Urgent Dispatch Coordination (ORD-0092)",
+                "summary": "Synthetic track SYNTH-TRACK-01 detected at 94.5 km bearing 215°. Zonal Order ORD-0092 awaits acknowledgement.",
                 "status": Alert.AlertStatus.NEW,
                 "transition_history": [
                     {
@@ -849,7 +849,7 @@ class Command(BaseCommand):
                 "alert": alert_01,
                 "recipient": sqldr_user,
                 "channel": Notification.ChannelType.INBOX,
-                "message": "Flash Order ORD-0092 in Squadron Inbox: Scramble 2x Interceptors to Sector 7.",
+                "message": "Flash Order ORD-0092 in Squadron Inbox: Dispatch Standby Readiness Pair to Sector 7.",
                 "delivered_at": FIXED_BASE_TIME,
                 "acknowledged_at": None,
             },
@@ -925,7 +925,7 @@ class Command(BaseCommand):
                 "equipment": eq_sb512,
                 "related_order": None,
                 "model_version": model_readiness,
-                "title": "7-Day Unavailability Risk Flagged for Su-30MKI (SB-512)",
+                "title": "7-Day Unavailability Risk Flagged for Type-B Multirole (SB-512)",
                 "input_snapshot": {
                     "fictional_code": "SB-512",
                     "days_since_last_service": 21,
@@ -961,7 +961,7 @@ class Command(BaseCommand):
                 "equipment": eq_rf102,
                 "related_order": order_0092,
                 "model_version": model_scorer,
-                "title": "Option A (Recommended): Task RF-102 + RF-104 via Runway 09/27 with QRA Pair Alpha",
+                "title": "Option A (Recommended): Task RF-102 + RF-104 via Runway 09/27 (Standby Readiness Pair Alpha)",
                 "input_snapshot": {
                     "order_code": "ORD-0092",
                     "candidate_aircraft": ["RF-102", "RF-104"],

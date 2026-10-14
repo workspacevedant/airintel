@@ -30,6 +30,9 @@ from apps.suggestion.models import ModelVersion, Suggestion
 FALLBACK_MODEL_VERSION = "deterministic-fallback-v1"
 
 REQUIRED_RUNWAY_M_BY_CATEGORY = {
+    Equipment.EquipmentCategory.TYPE_B: 2400,
+    Equipment.EquipmentCategory.TYPE_A: 2100,
+    Equipment.EquipmentCategory.TYPE_C: 1800,
     Equipment.EquipmentCategory.SU_30MKI: 2400,
     Equipment.EquipmentCategory.DASSAULT_RAFALE: 2100,
     Equipment.EquipmentCategory.TEJAS_MK1A: 1800,
@@ -260,7 +263,7 @@ def evaluate_hard_operational_constraints(
 
     if primary_usable:
         passed.append(
-            f"{airbase.runway_primary_label} CLEAR ({airbase.runway_primary_m}m >= {max_req_rwy}m required) and lowest scramble latency"
+            f"{airbase.runway_primary_label} CLEAR ({airbase.runway_primary_m}m >= {max_req_rwy}m required) and lowest dispatch latency"
         )
     elif secondary_usable:
         passed.append(
@@ -337,14 +340,14 @@ def score_operational_options(
     all_equip = list(Equipment.objects.filter(airbase=airbase).order_by("fictional_code"))
     all_crews = list(CrewReadiness.objects.filter(squadron__airbase=airbase).order_by("crew_ref"))
 
-    avail_rafales = [
+    avail_type_a = [
         e for e in all_equip
-        if e.category == Equipment.EquipmentCategory.DASSAULT_RAFALE
+        if e.category in (Equipment.EquipmentCategory.TYPE_A, Equipment.EquipmentCategory.DASSAULT_RAFALE)
         and e.status == Equipment.EquipmentStatus.AVAILABLE
     ]
-    avail_sukhois = [
+    avail_type_b = [
         e for e in all_equip
-        if e.category == Equipment.EquipmentCategory.SU_30MKI
+        if e.category in (Equipment.EquipmentCategory.TYPE_B, Equipment.EquipmentCategory.SU_30MKI)
         and e.status == Equipment.EquipmentStatus.AVAILABLE
     ]
 
@@ -358,16 +361,16 @@ def score_operational_options(
 
     candidate_packages = [
         {
-            "option_id": "OPT-A-RAFALE-QRA",
-            "title": "Option A (Recommended): Task RF-102 + RF-104 via Runway 09/27 with QRA Pair Alpha",
-            "equipment": avail_rafales[:2],
+            "option_id": "OPT-A-TYPE-A-READY",
+            "title": "Option A (Recommended): Task RF-102 + RF-104 via Runway 09/27 (Standby Readiness Pair Alpha)",
+            "equipment": avail_type_a[:2],
             "crew": compliant_crew,
             "required_count": 2,
         },
         {
-            "option_id": "OPT-B-MIXED-PATROL",
+            "option_id": "OPT-B-STANDBY-PATROL",
             "title": "Option B (Secondary): Task SB-512 + EQ-DEMO-014 with Standby Crew",
-            "equipment": (avail_sukhois[:1] + [e for e in all_equip if e.fictional_code == "EQ-DEMO-014"])[:2],
+            "equipment": (avail_type_b[:1] + [e for e in all_equip if e.fictional_code == "EQ-DEMO-014"])[:2],
             "crew": compliant_crew,
             "required_count": 2,
         },

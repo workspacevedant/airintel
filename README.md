@@ -2,7 +2,11 @@
 
 A human-in-the-loop, simulation-first decision-support platform designed for the Smart India Hackathon (SIH26250).
 
-> **Safety and Scope Note**: This specification and software describe a synthetic, non-operational demonstration. It intentionally does not define real-world weapon engagement procedures, tactical interception recommendations, classified sensor interfaces, or operational targeting logic.
+> **Safety and Scope Guard Note**: This specification and software describe a synthetic, non-operational demonstration.
+> - **Fictional & Synthetic Data Only**: All operations, coordinates, sensor streams, and events are synthetic. No classified or real-world operational data is used.
+> - **Generic Fictional Classifications**: All active airframes use generic fictional designations (`Type-A Fighter`, `Type-B Multirole`, `Type-C Light Combat`, `Recon UAV`, `Ground Support / Radar Unit`). Real platform names (`Rafale`, `Su-30MKI`, `Tejas`, `J-20`) and tactical weapon tables are retained solely as inert reference metadata and are strictly prohibited from all operational workflows, dispatch options, recommendations, and scoring logic.
+> - **No Engagement or Interception Procedures**: The system intentionally does not build weapon-selection, engagement, interception, targeting, or adversary-counter logic. All actions represent general resource readiness ("bring standby unit to ready state", "standby readiness pair", "dispatch patrol").
+> - **Visible Simulation Labelling**: The `SIMULATION MODE` banner and `SYNTHETIC` data badges remain visibly displayed across all console views and headers.
 
 ---
 

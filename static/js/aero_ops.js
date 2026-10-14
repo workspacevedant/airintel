@@ -35,31 +35,31 @@
             "";
     }
 
-    // Complete 25 Fictional IAF Aircraft Register for Fleet Management Module
+    // Complete 25 Fictional Airframe Register for Fleet Management Module
     const IAF_25_FLEET_REGISTER = [
-        { code: "RF-101", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "QRA Interceptor / Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-02", notes: "QRA Pad Alpha Lead" },
-        { code: "RF-102", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "QRA Interceptor / Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-03", notes: "Primary readiness interceptor pair #1" },
-        { code: "RF-103", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-29", notes: "Nominal telemetry" },
-        { code: "RF-104", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "QRA Interceptor / Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-28", notes: "Avionics sync check due T-4 HRS" },
-        { code: "RF-105", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Long-Range Surveillance Pod", radius_km: 1850, status: "AIRBORNE", readiness: "READY", next_due: "2026-11-05", notes: "Sector 7 Combat Air Patrol" },
-        { code: "RF-106", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-08", notes: "Standby Hangar 1" },
-        { code: "RF-107", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Electronic Escort Pod", radius_km: 1850, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-15", notes: "Radar LRU calibration" },
-        { code: "RF-108", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-10", notes: "Ready" },
-        { code: "SB-511", category: "Su-30MKI", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Heavy Endurance Patrol", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-27", notes: "Ready" },
-        { code: "SB-512", category: "Su-30MKI", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Extended Endurance Surveillance", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-13", notes: "100-hr phase inspection in 72h (XGB score 0.73)" },
-        { code: "SB-513", category: "Su-30MKI", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Heavy Endurance Patrol", radius_km: 1500, status: "AIRBORNE", readiness: "READY", next_due: "2026-10-30", notes: "Northern Ridge Patrol" },
-        { code: "SB-514", category: "Su-30MKI", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-11", notes: "Hydraulic actuator pressure fault FLT-HYD-402" },
-        { code: "SB-515", category: "Su-30MKI", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Maritime / Sector Recon", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-01", notes: "Ready" },
-        { code: "SB-516", category: "Su-30MKI", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-04", notes: "Ready" },
-        { code: "SB-517", category: "Su-30MKI", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Dual Sensor Pod", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-06", notes: "Ready" },
-        { code: "SB-518", category: "Su-30MKI", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "UNAVAILABLE", readiness: "GROUNDED", next_due: "2026-10-12", notes: "Engine bay thermal sensor replacement" },
-        { code: "SB-519", category: "Su-30MKI", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-09", notes: "Ready" },
-        { code: "EQ-DEMO-014", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-04", notes: "Appendix A canonical reference airframe" },
-        { code: "TJ-201", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Point Defence Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-07", notes: "Ready" },
-        { code: "TJ-202", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Point Defence Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-08", notes: "Ready" },
-        { code: "TJ-203", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "INSPECTED", readiness: "READY", next_due: "2026-11-11", notes: "Post-sortie inspection verified" },
-        { code: "TJ-204", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Point Defence Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-12", notes: "Ready" },
-        { code: "TJ-205", category: "HAL Tejas Mk1A", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-16", notes: "Landing gear strut check" },
+        { code: "RF-101", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standby Readiness Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-02", notes: "Standby Readiness Lead" },
+        { code: "RF-102", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standby Readiness Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-03", notes: "Primary readiness pair #1" },
+        { code: "RF-103", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-29", notes: "Nominal telemetry" },
+        { code: "RF-104", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standby Readiness Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-28", notes: "Avionics sync check due T-4 HRS" },
+        { code: "RF-105", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Long-Range Surveillance Pod", radius_km: 1850, status: "AIRBORNE", readiness: "READY", next_due: "2026-11-05", notes: "Sector 7 Air Patrol" },
+        { code: "RF-106", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-08", notes: "Standby Hangar 1" },
+        { code: "RF-107", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Electronic Escort Pod", radius_km: 1850, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-15", notes: "Radar LRU calibration" },
+        { code: "RF-108", category: "Type-A Fighter", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Air Patrol", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-10", notes: "Ready" },
+        { code: "SB-511", category: "Type-B Multirole", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Heavy Endurance Patrol", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-27", notes: "Ready" },
+        { code: "SB-512", category: "Type-B Multirole", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Extended Endurance Surveillance", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-10-13", notes: "100-hr phase inspection in 72h (XGB score 0.73)" },
+        { code: "SB-513", category: "Type-B Multirole", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Heavy Endurance Patrol", radius_km: 1500, status: "AIRBORNE", readiness: "READY", next_due: "2026-10-30", notes: "Northern Ridge Patrol" },
+        { code: "SB-514", category: "Type-B Multirole", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-11", notes: "Hydraulic actuator pressure fault FLT-HYD-402" },
+        { code: "SB-515", category: "Type-B Multirole", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Maritime / Sector Recon", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-01", notes: "Ready" },
+        { code: "SB-516", category: "Type-B Multirole", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-04", notes: "Ready" },
+        { code: "SB-517", category: "Type-B Multirole", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Dual Sensor Pod", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-06", notes: "Ready" },
+        { code: "SB-518", category: "Type-B Multirole", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "UNAVAILABLE", readiness: "GROUNDED", next_due: "2026-10-12", notes: "Engine bay thermal sensor replacement" },
+        { code: "SB-519", category: "Type-B Multirole", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Standard Patrol Config", radius_km: 1500, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-09", notes: "Ready" },
+        { code: "EQ-DEMO-014", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-04", notes: "Synthetic canonical reference airframe" },
+        { code: "TJ-201", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Sector Patrol Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-07", notes: "Ready" },
+        { code: "TJ-202", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Sector Patrol Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-08", notes: "Ready" },
+        { code: "TJ-203", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "INSPECTED", readiness: "READY", next_due: "2026-11-11", notes: "Post-sortie inspection verified" },
+        { code: "TJ-204", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Sector Patrol Interceptor", radius_km: 1200, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-12", notes: "Ready" },
+        { code: "TJ-205", category: "Type-C Light Combat", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Light Reconnaissance Config", radius_km: 1200, status: "MAINTENANCE", readiness: "DEGRADED", next_due: "2026-10-16", notes: "Landing gear strut check" },
         { code: "RD-901", category: "Ground Support / Radar Unit", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "Mobile Telemetry Relay", radius_km: 250, status: "AVAILABLE", readiness: "READY", next_due: "2026-12-01", notes: "Linked to SENSOR-DEMO-01" },
         { code: "RD-902", category: "Ground Support / Radar Unit", squadron: "SQ-DEMO-02", base: "AB-DEMO-01", payload: "Auxiliary Arrestor Power Unit", radius_km: 180, status: "AVAILABLE", readiness: "READY", next_due: "2026-12-05", notes: "Runway 09/27 support" }
     ];
@@ -200,7 +200,7 @@
         const tailId = document.getElementById("vc-tail-id")?.value || "RF-104";
         const squadronCode = document.getElementById("vc-squadron-code")?.value || "SQ-DEMO-01";
         const dutyState = document.getElementById("vc-duty-state")?.value || "READY";
-        const payloadCfg = document.getElementById("vc-payload-cfg")?.value || "450 MT / Standard QRA";
+        const payloadCfg = document.getElementById("vc-payload-cfg")?.value || "450 MT / Readiness Patrol Pod";
         const selectedRadio = document.querySelector('input[name="vc_input_form_mode"]:checked')?.value || "runway_status";
 
         try {

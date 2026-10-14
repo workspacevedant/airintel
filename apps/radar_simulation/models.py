@@ -175,7 +175,7 @@ class SensorNode(gis_models.Model):
 class Track(gis_models.Model):
     """
     Synthetic map marker and lifecycle record in SRID 4326 (Section 06, 09 & Appendix A).
-    Examples: H-01 J-20, TRACK-DEMO-12.
+    Examples: SYNTH-TRACK-01, TRACK-DEMO-12.
     """
 
     class TrackState(models.TextChoices):
@@ -202,7 +202,7 @@ class Track(gis_models.Model):
     callsign_label = models.CharField(
         max_length=80,
         default="SYNTHETIC-UNKNOWN-PROFILE",
-        help_text="Non-operational synthetic display label (e.g., H-01 J-20).",
+        help_text="Non-operational synthetic display label (e.g., SYNTH-TRACK-01).",
     )
     state = models.CharField(
         max_length=20,

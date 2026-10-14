@@ -121,5 +121,5 @@ class AeroOpsPart2AcceptanceTests(TestCase):
         self.assertEqual(infeasible_opt["score"], 0.0)
 
         recommended_opt = next(o for o in options if o["recommended"])
-        self.assertEqual(recommended_opt["option_id"], "OPT-A-RAFALE-QRA")
+        self.assertEqual(recommended_opt["option_id"], "OPT-A-TYPE-A-READY")
         self.assertTrue(recommended_opt["feasible"])
