@@ -13,6 +13,28 @@
 (function () {
     "use strict";
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function getCSRFToken() {
+        return getCookie("csrftoken") ||
+            (document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute("content") : "") ||
+            (document.querySelector("[name=csrfmiddlewaretoken]") ? document.querySelector("[name=csrfmiddlewaretoken]").value : "") ||
+            "";
+    }
+
     // Complete 25 Fictional IAF Aircraft Register for Fleet Management Module
     const IAF_25_FLEET_REGISTER = [
         { code: "RF-101", category: "Dassault Rafale", squadron: "SQ-DEMO-01", base: "AB-DEMO-01", payload: "QRA Interceptor / Patrol Pod", radius_km: 1850, status: "AVAILABLE", readiness: "READY", next_due: "2026-11-02", notes: "QRA Pad Alpha Lead" },
@@ -146,7 +168,10 @@
         try {
             const resp = await fetch(`/api/equipment/${encodeURIComponent(code)}/status/`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     status: newStatus,
                     notes: `Status transitioned to ${newStatus} via GovTech Fleet Register.`
@@ -181,7 +206,10 @@
         try {
             const resp = await fetch("/api/commander/override/", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     airbase_code: airbaseCode,
                     form_mode: selectedRadio,
@@ -240,7 +268,10 @@
         try {
             const resp = await fetch("/api/commander/override/", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     airbase_code: "AB-DEMO-01",
                     form_mode: directiveCode,
@@ -267,7 +298,10 @@
         try {
             const resp = await fetch(`/api/orders/${encodeURIComponent(orderCode)}/acknowledge/`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     status: "ACKNOWLEDGED",
                     reason: `Acknowledged ${orderCode} from Actions Required inbox.`
@@ -294,7 +328,10 @@
         try {
             const resp = await fetch(`/api/suggestions/${encodeURIComponent(suggestionCode)}/review/`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     decision: decision,
                     notes: `Human-in-the-loop review decision (${decision}) recorded by commander.`
@@ -332,7 +369,10 @@
         try {
             const resp = await fetch("/api/simulation/control/", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify(body)
             });
             const data = await resp.json();
@@ -374,7 +414,10 @@
         try {
             const resp = await fetch("/api/maintenance/", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
                 body: JSON.stringify({
                     fictional_code: equipCode,
                     fault_code: faultCode,

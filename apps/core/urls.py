@@ -47,4 +47,11 @@ urlpatterns = [
     ),
     # Variant C Commander Console Override Endpoint
     path("api/commander/override/", views.api_commander_override_view, name="api_commander_override"),
+    # Administrative Role Assignment Review & Scope Assignment Endpoints (Section 04 & 11)
+    path("api/admin/role-assignments/", views.api_role_assignments_list_view, name="api_admin_role_assignments_list"),
+    path(
+        "api/admin/role-assignments/<uuid:assignment_id>/review/",
+        views.api_role_assignment_review_view,
+        name="api_admin_role_assignment_review",
+    ),
 ]

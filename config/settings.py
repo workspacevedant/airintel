@@ -3,13 +3,14 @@ Django settings for AERO-OPS (SIH26250) — Dynamic Air Operations & Resource Op
 Human-in-the-loop, simulation-first decision-support platform.
 """
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
-    DEBUG=(bool, True),
-    DJANGO_SECRET_KEY=(str, "sih26250-aero-ops-local-demo-secret-key-9981234567890"),
+    DEBUG=(bool, False),
+    DEMO_MODE=(bool, False),
     ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1", "0.0.0.0", "web"]),
     CSRF_TRUSTED_ORIGINS=(
         list,
@@ -27,8 +28,18 @@ env_file = BASE_DIR / ".env"
 if env_file.exists():
     environ.Env.read_env(str(env_file))
 
-SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DEBUG")
+DEMO_MODE = env("DEMO_MODE")
+
+# Enforce secret key presence outside DEMO_MODE (Phase 1 Security)
+raw_secret_key = env("DJANGO_SECRET_KEY", default=None)
+if not raw_secret_key:
+    if DEMO_MODE:
+        raw_secret_key = "sih26250-aero-ops-local-demo-secret-key-9981234567890"
+    else:
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable is required outside DEMO_MODE.")
+SECRET_KEY = raw_secret_key
+
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
@@ -39,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "channels",
@@ -51,6 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,6 +85,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core.portal_views.demo_mode_context_processor",
             ],
         },
     },
@@ -97,6 +111,14 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Cache layer supporting rate limiting
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "aero-ops-ratelimit-cache",
+    }
+}
+
 AUTH_USER_MODEL = "core.User"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -109,9 +131,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Phase 1: Only robust PBKDF2; dropped weak PBKDF2SHA1
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
-    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
 ]
 
 SESSION_COOKIE_HTTPONLY = True
@@ -128,6 +150,9 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -136,6 +161,16 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "30/minute",
+        "user": "120/minute",
+        "auth": "5/minute",
+        "simulation": "20/minute",
+    },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 25,
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%SZ",
@@ -149,6 +184,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 FIXTURE_DIRS = [BASE_DIR / "fixtures"]
 

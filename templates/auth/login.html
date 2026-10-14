@@ -35,17 +35,18 @@
                     {% csrf_token %}
                     <div class="gov-form-row">
                         <label for="id_username">Username</label>
-                        <input type="text" id="id_username" name="username" class="gov-input mono" value="cmdr_vsingh" required>
+                        <input type="text" id="id_username" name="username" class="gov-input mono" {% if DEMO_MODE %}value="cmdr_vsingh"{% endif %} placeholder="Username" required>
                     </div>
                     <div class="gov-form-row">
                         <label for="id_password">Password</label>
-                        <input type="password" id="id_password" name="password" class="gov-input" value="AeroOps@26250" required>
+                        <input type="password" id="id_password" name="password" class="gov-input" {% if DEMO_MODE %}value="AeroOps@26250"{% endif %} placeholder="Password" required>
                     </div>
                     <div class="gov-form-actions">
                         <button type="submit" class="btn-gov btn-gov-primary">Sign In to Console</button>
                         <a href="{% url 'commander_dashboard' %}" class="btn-gov" style="text-decoration:none;">Return to Dashboard</a>
                     </div>
                 </form>
+                {% if DEMO_MODE %}
                 <div style="margin-top:12px; padding-top:8px; border-top:1px solid #cdd2d9; font-size:11px;">
                     <strong>Seeded Demo Credentials (Password: <code class="mono">AeroOps@26250</code>):</strong>
                     <ul style="margin-top:4px; padding-left:18px;">
@@ -54,6 +55,7 @@
                         <li><code class="mono">zonal_knair</code> &mdash; AVM K. NAIR (Zonal Commander &rarr; ZONE-DEMO-A)</li>
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -11,3 +11,6 @@ scikit-learn==1.5.1
 xgboost==2.1.1
 pandas==2.2.2
 numpy==1.26.4
+whitenoise==6.7.0
+openpyxl==3.1.5
+

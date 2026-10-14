@@ -14,8 +14,9 @@ from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+
+from apps.core.ratelimit import check_rate_limit, rate_limit_response
 
 from apps.core.forms import RegistrationForm
 from apps.core.models import (
@@ -90,7 +91,6 @@ def _json_error(message: str, status: int = 400, extra: Dict[str, Any] = None) -
 # -------------------------------------------------------------------------
 # 1. AUTHENTICATION & REGISTRATION ENDPOINTS (POST /auth/register/, /auth/login/, /auth/logout/)
 # -------------------------------------------------------------------------
-@csrf_exempt
 @require_http_methods(["POST"])
 def auth_register_view(request: HttpRequest) -> JsonResponse:
     """
@@ -99,6 +99,9 @@ def auth_register_view(request: HttpRequest) -> JsonResponse:
     Applies a safe default scope: RoleAssignment starts in PENDING state with NO arbitrary
     airbase or zone access until approved/assigned (Section 04, 10 & 11).
     """
+    if not check_rate_limit(request, "register", limit=5, timeout=60):
+        return rate_limit_response("Rate limit of 5 registration requests per minute exceeded.")
+
     try:
         data = _parse_body(request)
     except ValidationError as exc:
@@ -181,10 +184,12 @@ def auth_register_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def auth_login_view(request: HttpRequest) -> JsonResponse:
     """POST /auth/login/ — Authenticates session and audits login (Section 04 & 11)."""
+    if not check_rate_limit(request, "login", limit=5, timeout=60):
+        return rate_limit_response("Rate limit of 5 login requests per minute exceeded.")
+
     try:
         data = _parse_body(request)
     except ValidationError as exc:
@@ -228,7 +233,6 @@ def auth_login_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def auth_logout_view(request: HttpRequest) -> JsonResponse:
     """POST /auth/logout/ — Terminates session and audits sign-out."""
@@ -294,7 +298,6 @@ def api_dashboard_summary_view(request: HttpRequest) -> JsonResponse:
 # -------------------------------------------------------------------------
 # 3. AIRBASES ENDPOINTS (GET/POST /api/airbases/)
 # -------------------------------------------------------------------------
-@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def api_airbases_view(request: HttpRequest) -> JsonResponse:
     """
@@ -438,7 +441,6 @@ def api_equipment_list_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["PATCH", "POST", "PUT"])
 def api_equipment_status_update_view(request: HttpRequest, equipment_id: str) -> JsonResponse:
     """
@@ -492,7 +494,6 @@ def api_equipment_status_update_view(request: HttpRequest, equipment_id: str) ->
 # -------------------------------------------------------------------------
 # 5. MAINTENANCE ENDPOINTS (GET/POST /api/maintenance/)
 # -------------------------------------------------------------------------
-@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def api_maintenance_view(request: HttpRequest) -> JsonResponse:
     """
@@ -637,7 +638,6 @@ def api_orders_list_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def api_order_acknowledge_view(request: HttpRequest, order_id: str) -> JsonResponse:
     """
@@ -798,7 +798,6 @@ def api_simulation_status_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def api_simulation_control_view(request: HttpRequest) -> JsonResponse:
     """
@@ -809,6 +808,8 @@ def api_simulation_control_view(request: HttpRequest) -> JsonResponse:
     try:
         user = _require_auth(request)
         assert_can_control_simulation(user)
+        if not check_rate_limit(request, "simulation_control", limit=20, timeout=60, by_user=True):
+            return rate_limit_response("Rate limit of 20 simulation control requests per minute exceeded.")
         data = _parse_body(request)
     except PermissionDenied as exc:
         return _json_error(str(exc), status=403)
@@ -891,7 +892,6 @@ def api_suggestions_list_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def api_suggestion_review_view(request: HttpRequest, suggestion_id: str) -> JsonResponse:
     """
@@ -981,7 +981,6 @@ def api_suggestion_review_view(request: HttpRequest, suggestion_id: str) -> Json
 # -------------------------------------------------------------------------
 # 10. VARIANT C COMMANDER OVERRIDE ENDPOINT (POST /api/commander/override/)
 # -------------------------------------------------------------------------
-@csrf_exempt
 @require_http_methods(["POST"])
 def api_commander_override_view(request: HttpRequest) -> JsonResponse:
     """
@@ -1016,3 +1015,136 @@ def api_commander_override_view(request: HttpRequest) -> JsonResponse:
         return _json_error(exc.message if hasattr(exc, "message") else str(exc), status=400)
 
     return JsonResponse({"status": "ok", "result": res})
+
+
+# -------------------------------------------------------------------------
+# 11. ADMINISTRATIVE ROLE ASSIGNMENT APPROVAL & REVIEW ENDPOINTS
+# -------------------------------------------------------------------------
+@require_http_methods(["GET"])
+def api_role_assignments_list_view(request: HttpRequest) -> JsonResponse:
+    """
+    GET /api/admin/role-assignments/
+    Lists RoleAssignments. Restricted to staff/superusers.
+    Supports filtering by ?status=PENDING / ACTIVE / REVOKED.
+    """
+    user = _require_auth(request)
+    if not (user.is_staff or user.is_superuser):
+        log_security_denial(
+            user=user,
+            action="ROLE_ASSIGNMENTS_LIST_FORBIDDEN",
+            object_type="RoleAssignment",
+            object_id="LIST",
+            reason="Non-staff user attempted to view administrative role assignments.",
+            source="api:GET /api/admin/role-assignments/",
+        )
+        return _json_error("Forbidden: Administrative privilege required.", status=403)
+
+    qs = RoleAssignment.objects.select_related("user", "airbase", "squadron", "zone").all().order_by("-id")
+    status_filter = request.GET.get("status")
+    if status_filter:
+        qs = qs.filter(status=status_filter.upper().strip())
+
+    results = [
+        {
+            "id": str(a.id),
+            "user": a.user.username,
+            "display_name": a.user.display_name,
+            "role": a.role,
+            "status": a.status,
+            "airbase": a.airbase.code if a.airbase else None,
+            "squadron": a.squadron.code if a.squadron else None,
+            "zone": a.zone.code if a.zone else None,
+            "can_control_simulation": a.can_control_simulation,
+            "granted_by": a.granted_by.username if a.granted_by else None,
+        }
+        for a in qs
+    ]
+    return JsonResponse({"count": len(results), "results": results})
+
+
+@require_http_methods(["POST"])
+def api_role_assignment_review_view(request: HttpRequest, assignment_id: str) -> JsonResponse:
+    """
+    POST /api/admin/role-assignments/{id}/review/
+    Allows administrative review (approve / reject / assign scope) of a RoleAssignment.
+    Only users with is_staff or is_superuser can perform this action.
+    Audits role and scope changes before/after to AuditLog.
+    """
+    user = _require_auth(request)
+    if not (user.is_staff or user.is_superuser):
+        log_security_denial(
+            user=user,
+            action="ROLE_ASSIGNMENT_REVIEW_FORBIDDEN",
+            object_type="RoleAssignment",
+            object_id=str(assignment_id),
+            reason="Only staff/administrators can approve or modify RoleAssignments.",
+            source="api:POST /api/admin/role-assignments/review/",
+        )
+        return _json_error("Forbidden: Administrative privilege required.", status=403)
+
+    try:
+        data = _parse_body(request)
+    except ValidationError as exc:
+        return _json_error(str(exc), status=400)
+
+    assignment = get_object_or_404(RoleAssignment, id=assignment_id)
+    new_status = str(data.get("status", "ACTIVE")).upper().strip()
+    valid_statuses = {c[0] for c in RoleAssignment.AssignmentStatus.choices}
+    if new_status not in valid_statuses:
+        return _json_error(f"Invalid status '{new_status}'. Allowed: {sorted(valid_statuses)}", status=400)
+
+    before_state = {
+        "status": assignment.status,
+        "role": assignment.role,
+        "airbase": assignment.airbase.code if assignment.airbase else None,
+        "squadron": assignment.squadron.code if assignment.squadron else None,
+        "zone": assignment.zone.code if assignment.zone else None,
+        "can_control_simulation": assignment.can_control_simulation,
+    }
+
+    with transaction.atomic():
+        assignment.status = new_status
+        if "airbase_code" in data:
+            ab_code = data["airbase_code"]
+            assignment.airbase = Airbase.objects.filter(code=ab_code).first() if ab_code else None
+        if "squadron_code" in data:
+            sq_code = data["squadron_code"]
+            assignment.squadron = Squadron.objects.filter(code=sq_code).first() if sq_code else None
+        if "zone_code" in data:
+            z_code = data["zone_code"]
+            assignment.zone = Zone.objects.filter(code=z_code).first() if z_code else None
+        if "can_control_simulation" in data:
+            assignment.can_control_simulation = bool(data["can_control_simulation"])
+        if "role" in data and data["role"] in {c[0] for c in DesignationChoices.choices}:
+            assignment.role = data["role"]
+
+        assignment.granted_by = user
+        assignment.save()
+
+        after_state = {
+            "status": assignment.status,
+            "role": assignment.role,
+            "airbase": assignment.airbase.code if assignment.airbase else None,
+            "squadron": assignment.squadron.code if assignment.squadron else None,
+            "zone": assignment.zone.code if assignment.zone else None,
+            "can_control_simulation": assignment.can_control_simulation,
+        }
+
+        AuditLog.objects.create(
+            actor=user,
+            action="ROLE_ASSIGNMENT_REVIEWED_AND_UPDATED",
+            object_type="RoleAssignment",
+            object_id=str(assignment.id),
+            before=before_state,
+            after=after_state,
+            source="api:POST /api/admin/role-assignments/review/",
+        )
+
+    return JsonResponse({
+        "status": "ok",
+        "assignment_id": str(assignment.id),
+        "user": assignment.user.username,
+        "before": before_state,
+        "after": after_state,
+    })
+

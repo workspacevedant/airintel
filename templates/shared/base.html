@@ -6,6 +6,7 @@
     <title>AERO-OPS | {{ page_title|default:"Avalon Forward Base (AB-DEMO-01)" }} — NIC GovTech Portal</title>
     <link rel="stylesheet" href="{% static 'css/govtech.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
     <!-- 1. Top NIC Utility Strip (#ffffff with #222222 text) -->
@@ -37,6 +38,7 @@
         </div>
         <div class="mod-header-controls">
             <span>Active Officer: <strong class="mono">{{ request.user.display_name|default:"CMDR V. SINGH" }}</strong></span>
+            {% if DEMO_MODE %}
             <form method="post" action="{% url 'portal_switch_role' %}" style="display:inline-flex; align-items:center; gap:4px;">
                 {% csrf_token %}
                 <label for="demo-role-select" style="color:#d6e0f0;">Switch Demo Account:</label>
@@ -46,6 +48,7 @@
                     <option value="zonal_knair" {% if request.user.username == "zonal_knair" %}selected{% endif %}>AVM K. NAIR (Zonal Commander - ZONE-DEMO-A)</option>
                 </select>
             </form>
+            {% endif %}
             <a href="{% url 'portal_login' %}" class="btn-gov btn-gov-xs" style="text-decoration:none;">Auth Portal</a>
         </div>
     </header>

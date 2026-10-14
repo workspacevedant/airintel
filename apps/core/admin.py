@@ -42,6 +42,66 @@ class UserAdmin(admin.ModelAdmin):
 class RoleAssignmentAdmin(admin.ModelAdmin):
     list_display = ("user", "role", "zone", "airbase", "squadron", "status", "can_control_simulation")
     list_filter = ("role", "status", "can_control_simulation")
+    actions = ["approve_assignments", "revoke_assignments"]
+
+    @admin.action(description="Approve selected role assignments (mark ACTIVE)")
+    def approve_assignments(self, request, queryset):
+        for a in queryset:
+            before = {"status": a.status, "role": a.role}
+            a.status = RoleAssignment.AssignmentStatus.ACTIVE
+            a.granted_by = request.user
+            a.save()
+            AuditLog.objects.create(
+                actor=request.user,
+                action="ROLE_ASSIGNMENT_APPROVED_VIA_ADMIN",
+                object_type="RoleAssignment",
+                object_id=str(a.id),
+                before=before,
+                after={"status": a.status, "role": a.role},
+                source="django_admin",
+            )
+
+    @admin.action(description="Revoke selected role assignments (mark REVOKED)")
+    def revoke_assignments(self, request, queryset):
+        for a in queryset:
+            before = {"status": a.status, "role": a.role}
+            a.status = RoleAssignment.AssignmentStatus.REVOKED
+            a.save()
+            AuditLog.objects.create(
+                actor=request.user,
+                action="ROLE_ASSIGNMENT_REVOKED_VIA_ADMIN",
+                object_type="RoleAssignment",
+                object_id=str(a.id),
+                before=before,
+                after={"status": a.status, "role": a.role},
+                source="django_admin",
+            )
+
+    def save_model(self, request, obj, form, change):
+        before = None
+        if change:
+            orig = RoleAssignment.objects.get(pk=obj.pk)
+            before = {
+                "status": orig.status,
+                "role": orig.role,
+                "airbase": orig.airbase.code if orig.airbase else None,
+                "zone": orig.zone.code if orig.zone else None,
+            }
+        super().save_model(request, obj, form, change)
+        AuditLog.objects.create(
+            actor=request.user,
+            action="ROLE_ASSIGNMENT_SAVED_VIA_ADMIN",
+            object_type="RoleAssignment",
+            object_id=str(obj.id),
+            before=before,
+            after={
+                "status": obj.status,
+                "role": obj.role,
+                "airbase": obj.airbase.code if obj.airbase else None,
+                "zone": obj.zone.code if obj.zone else None,
+            },
+            source="django_admin",
+        )
 
 
 @admin.register(Zone)
