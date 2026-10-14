@@ -29,6 +29,7 @@ urlpatterns = [
         views.api_equipment_status_update_view,
         name="api_equipment_status_update",
     ),
+    path("api/crew/", views.api_crew_list_view, name="api_crew_list"),
     path("api/maintenance/", views.api_maintenance_view, name="api_maintenance"),
     path("api/orders/", views.api_orders_list_view, name="api_orders_list"),
     path(

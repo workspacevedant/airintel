@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AERO-OPS | {{ page_title|default:"Avalon Forward Base (AB-DEMO-01)" }} — NIC GovTech Portal</title>
     <link rel="stylesheet" href="{% static 'css/govtech.css' %}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
@@ -63,8 +63,14 @@
             <button type="button" class="btn-gov btn-gov-xs btn-gov-amber" onclick="window.AeroOpsJudgeAction('equip_maint')">[3. Trigger Equipment Maintenance]</button>
             <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsJudgeAction('reset')">[4. Reset Demo Seed 26250]</button>
         </div>
-        <div class="mono" style="font-size:11px; color:#1f2937;">
-            Sim Clock: <strong id="sim-clock-display">2026-10-10T10:30:00Z</strong> | Wall Clock: <strong>UTC</strong>
+        <div class="mono" style="font-size:11px; color:#1f2937; display:flex; gap:8px; align-items:center;">
+            <span>Sim Clock: <strong id="sim-clock-display">2026-10-10T10:30:00Z</strong></span>
+            <span>|</span>
+            <span>Wall Clock: <strong id="wall-clock-display">--:--:-- UTC</strong></span>
+            <span>|</span>
+            <span>Freshness: <span id="data-freshness-pill" class="status-tag tag-clear" style="padding:1px 5px; font-size:10px;">LIVE</span></span>
+            <span>|</span>
+            <span style="color:#555;">Updated: <span id="last-updated-display">--:--:--</span></span>
         </div>
     </div>
     {% endif %}
@@ -119,7 +125,7 @@
         </main>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
     <script src="{% static 'js/aero_ops.js' %}"></script>
 </body>
 </html>

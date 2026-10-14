@@ -69,6 +69,8 @@
     let pollIntervalId = null;
     let leafletMap = null;
     let leafletLayers = { sensors: {}, tracks: {} };
+    let lastFetchTimestamp = null;
+    let fetchErrorOccurred = false;
 
     function appendAuditLine(actor, action, obj, statusText) {
         const term = document.getElementById("live-audit-terminal");
@@ -78,6 +80,48 @@
         div.className = "audit-line";
         div.textContent = `[${nowIso}] ACTOR: ${actor} | ACTION: ${action} | OBJ: ${obj} | STATUS: ${statusText}`;
         term.insertBefore(div, term.firstChild);
+    }
+
+    // -------------------------------------------------------------------------
+    // Clocks and Freshness Display
+    // -------------------------------------------------------------------------
+    function initClocks() {
+        function updateWallClock() {
+            const wc = document.getElementById("wall-clock-display");
+            if (wc) {
+                const now = new Date();
+                wc.textContent = now.toISOString().slice(11, 19) + " UTC";
+            }
+            updateFreshnessPill();
+        }
+        setInterval(updateWallClock, 1000);
+        updateWallClock();
+    }
+
+    function updateFreshnessPill() {
+        const pill = document.getElementById("data-freshness-pill");
+        if (!pill) return;
+        if (fetchErrorOccurred) {
+            pill.textContent = "OFFLINE";
+            pill.className = "status-tag tag-critical";
+            return;
+        }
+        if (!lastFetchTimestamp) {
+            pill.textContent = "INITIALIZING";
+            pill.className = "status-tag tag-neutral";
+            return;
+        }
+        const elapsedSec = Math.floor((Date.now() - lastFetchTimestamp) / 1000);
+        if (elapsedSec < 6) {
+            pill.textContent = "LIVE";
+            pill.className = "status-tag tag-clear";
+        } else if (elapsedSec < 15) {
+            pill.textContent = `SYNCED (${elapsedSec}s)`;
+            pill.className = "status-tag tag-neutral";
+        } else {
+            pill.textContent = `STALE (${elapsedSec}s)`;
+            pill.className = "status-tag tag-critical";
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -129,34 +173,76 @@
             return true;
         });
 
-        tbody.innerHTML = filtered.map((ac, idx) => {
-            let badgeClass = "tag-clear";
-            if (ac.status === "MAINTENANCE" || ac.status === "AIRBORNE") badgeClass = "tag-maint";
-            if (ac.status === "UNAVAILABLE") badgeClass = "tag-critical";
-            return `
-                <tr>
-                    <td class="mono">${idx + 1}</td>
-                    <td class="mono"><strong>${ac.code}</strong></td>
-                    <td>${ac.category}</td>
-                    <td class="mono">${ac.squadron}</td>
-                    <td>${ac.payload}</td>
-                    <td class="mono">${ac.radius_km} km</td>
-                    <td><span class="status-tag ${badgeClass}">${ac.status}</span></td>
-                    <td class="mono">${ac.next_due}</td>
-                    <td>${ac.notes}</td>
-                    <td>
-                        <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('${ac.code}', 'MAINTENANCE')">Maint</button>
-                        <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('${ac.code}', 'AVAILABLE')">Ready</button>
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="10" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        No aircraft matching selected filter criteria.
                     </td>
                 </tr>
             `;
-        }).join("");
+        } else {
+            tbody.innerHTML = filtered.map((ac, idx) => {
+                let badgeClass = "tag-clear";
+                if (ac.status === "MAINTENANCE" || ac.status === "AIRBORNE") badgeClass = "tag-maint";
+                if (ac.status === "UNAVAILABLE") badgeClass = "tag-critical";
+                return `
+                    <tr>
+                        <td class="mono">${idx + 1}</td>
+                        <td class="mono"><strong>${ac.code}</strong></td>
+                        <td>${ac.category}</td>
+                        <td class="mono">${ac.squadron}</td>
+                        <td>${ac.payload}</td>
+                        <td class="mono">${ac.radius_km} km</td>
+                        <td><span class="status-tag ${badgeClass}">${ac.status}</span></td>
+                        <td class="mono">${ac.next_due || "—"}</td>
+                        <td>${ac.notes || "Nominal"}</td>
+                        <td>
+                            <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('${ac.code}', 'MAINTENANCE')" aria-label="Set ${ac.code} to maintenance">Maint</button>
+                            <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('${ac.code}', 'AVAILABLE')" aria-label="Set ${ac.code} to available">Ready</button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
 
         const countSpan = document.getElementById("fleet-register-count");
         if (countSpan) countSpan.textContent = `${filtered.length} / ${IAF_25_FLEET_REGISTER.length}`;
     }
 
     window.AeroOpsFilterFleet = renderFleetRegisterTable;
+
+    function syncFleetRegisterFromDB(equipmentList) {
+        if (!equipmentList || equipmentList.length === 0) return;
+        equipmentList.forEach((dbEq) => {
+            const found = IAF_25_FLEET_REGISTER.find((x) => x.code === dbEq.code);
+            if (found) {
+                found.category = dbEq.category;
+                found.squadron = dbEq.squadron;
+                found.base = dbEq.airbase;
+                found.payload = dbEq.payload;
+                found.radius_km = dbEq.radius_km;
+                found.status = dbEq.status;
+                found.readiness = dbEq.readiness;
+                if (dbEq.next_due) found.next_due = dbEq.next_due;
+                if (dbEq.notes) found.notes = dbEq.notes;
+            } else {
+                IAF_25_FLEET_REGISTER.push({
+                    code: dbEq.code,
+                    category: dbEq.category,
+                    squadron: dbEq.squadron,
+                    base: dbEq.airbase,
+                    payload: dbEq.payload,
+                    radius_km: dbEq.radius_km,
+                    status: dbEq.status,
+                    readiness: dbEq.readiness,
+                    next_due: dbEq.next_due || "2026-11-01",
+                    notes: dbEq.notes || "Operational"
+                });
+            }
+        });
+        renderFleetRegisterTable();
+    }
 
     window.AeroOpsQuickToggleAircraft = async function (code, newStatus) {
         const memItem = IAF_25_FLEET_REGISTER.find((x) => x.code === code);
@@ -188,6 +274,244 @@
             appendAuditLine("LOCAL_SIM", "EQUIPMENT_STATUS_UPDATED", code, newStatus);
         }
     };
+
+    // -------------------------------------------------------------------------
+    // Dynamic Table Rendering (Data-Driven UI — Section 05 & Master Spec)
+    // -------------------------------------------------------------------------
+    function renderActiveAircraftTable(equipmentList) {
+        const tbody = document.getElementById("active-aircraft-tbody");
+        if (!tbody) return;
+        if (!equipmentList || equipmentList.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="9" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        No aircraft currently assigned to active squadron or base scope.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const topEquipment = equipmentList.slice(0, 8);
+        tbody.innerHTML = topEquipment.map((eq) => {
+            let badgeClass = "tag-clear";
+            if (eq.status === "MAINTENANCE" || eq.status === "AIRBORNE") badgeClass = "tag-maint";
+            if (eq.status === "UNAVAILABLE") badgeClass = "tag-critical";
+
+            let actionBtn = `<button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('${eq.code}', 'MAINTENANCE')" aria-label="Mark ${eq.code} maintenance">Mark Maint</button>`;
+            if (eq.status === "MAINTENANCE" || eq.status === "UNAVAILABLE") {
+                actionBtn = `<button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('${eq.code}', 'AVAILABLE')" aria-label="Mark ${eq.code} ready">Verify Ready</button>`;
+            } else if (eq.status === "AVAILABLE") {
+                actionBtn = `<button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('${eq.code}', 'AIRBORNE')" aria-label="Dispatch ${eq.code}">Dispatch</button>`;
+            }
+
+            return `
+                <tr>
+                    <td class="mono"><strong>${eq.code}</strong></td>
+                    <td>${eq.category}</td>
+                    <td class="mono">${eq.squadron}</td>
+                    <td>${eq.payload || "Standard Patrol Config"}</td>
+                    <td class="mono">${eq.last_service || "2026-10-01"}</td>
+                    <td class="mono">${eq.next_due || "2026-11-01"}</td>
+                    <td><span class="status-tag ${badgeClass}">${eq.status}</span></td>
+                    <td>${eq.notes || "Operational telemetry nominal."}</td>
+                    <td>${actionBtn}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderCrewRosterTable(crewList) {
+        const tbody = document.getElementById("crew-roster-tbody");
+        if (!tbody) return;
+        if (!crewList || crewList.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="8" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        No flight crew records found in current operational scope.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = crewList.map((c) => {
+            const isViolated = c.rest_required || c.fdtl_hours_logged >= 8.0;
+            const rowStyle = isViolated ? 'style="background-color:#fff3cd;"' : "";
+            const fdtlColor = isViolated ? 'style="color:#c62828; font-weight:bold;"' : "";
+            const restBadge = isViolated
+                ? '<span class="status-tag tag-critical">REST REQUIRED</span>'
+                : '<span class="status-tag tag-clear">NO</span>';
+            const dutyClass = c.duty_state === "REST_REQUIRED" ? "tag-critical" : (c.duty_state === "READY" ? "tag-clear" : "tag-maint");
+            const constraintNote = isViolated
+                ? "<strong>HARD CONSTRAINT LOCKED:</strong> Mandatory rest required. Excluded from readiness pool."
+                : (c.notes || "QUALIFIED — Nominal duty schedule.");
+
+            return `
+                <tr ${rowStyle}>
+                    <td class="mono"><strong>${c.crew_code}</strong></td>
+                    <td><strong>${c.crew_ref}</strong></td>
+                    <td class="mono">${c.squadron}</td>
+                    <td class="mono">${c.pilot_group_count} Pilot / ${c.ground_support_count} Ground</td>
+                    <td class="mono" ${fdtlColor}>${c.fdtl_hours_logged} / 8.0 hrs</td>
+                    <td>${restBadge}</td>
+                    <td><span class="status-tag ${dutyClass}">${c.duty_state}</span></td>
+                    <td>${constraintNote}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderMaintenanceBoardTable(taskList) {
+        const tbody = document.getElementById("maintenance-board-tbody");
+        if (!tbody) return;
+        if (!taskList || taskList.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="6" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        Zero active maintenance work orders. All airframes verified operational.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = taskList.map((t) => {
+            const sevClass = t.severity === "CRITICAL" || t.severity === "HIGH" ? "tag-critical" : "tag-maint";
+            const statusClass = t.status === "COMPLETED" || t.status === "VERIFIED" ? "tag-clear" : (t.status === "IN_PROGRESS" ? "tag-maint" : "tag-neutral");
+            return `
+                <tr>
+                    <td class="mono"><strong>${t.fault_code}</strong></td>
+                    <td class="mono">${t.equipment_code}</td>
+                    <td><span class="status-tag ${sevClass}">${t.severity}</span></td>
+                    <td><span class="status-tag ${statusClass}">${t.status}</span></td>
+                    <td>${t.description}</td>
+                    <td class="mono">${t.due_at || "TBD"}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderInfrastructureAirbasesTable(airbaseList) {
+        const tbody = document.getElementById("infra-airbases-tbody");
+        if (!tbody) return;
+        if (!airbaseList || airbaseList.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="9" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        No airbase infrastructure records registered for current scope.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = airbaseList.map((ab) => {
+            const rwy1Class = ab.runway_primary_status === "CLEAR" ? "tag-clear" : "tag-maint";
+            const rwy2Class = ab.runway_secondary_status === "CLEAR" ? "tag-clear" : "tag-maint";
+            const gearClass = ab.arrestor_gear_status === "OPERATIONAL" ? "tag-clear" : "tag-critical";
+            const statusClass = ab.status === "OPERATIONAL" ? "tag-clear" : "tag-maint";
+            return `
+                <tr>
+                    <td class="mono"><strong>${ab.code}</strong></td>
+                    <td>${ab.name}</td>
+                    <td class="mono">${ab.zone_code}</td>
+                    <td class="mono">${ab.lat.toFixed(4)}° N, ${ab.lon.toFixed(4)}° E</td>
+                    <td>${ab.runway_primary_label} (${ab.runway_primary_m}m) <span class="status-tag ${rwy1Class}">${ab.runway_primary_status}</span></td>
+                    <td>${ab.runway_secondary_label} (${ab.runway_secondary_m}m) <span class="status-tag ${rwy2Class}">${ab.runway_secondary_status}</span></td>
+                    <td><span class="status-tag ${gearClass}">${ab.arrestor_gear_status}</span></td>
+                    <td class="mono">${ab.fuel_reserves_mt.toFixed(2)} MT</td>
+                    <td><span class="status-tag ${statusClass}">${ab.status}</span></td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderActionsRequiredList(ordersList) {
+        const listEl = document.getElementById("actions-bullet-list");
+        if (!listEl) return;
+        if (!ordersList || ordersList.length === 0) {
+            listEl.innerHTML = `
+                <li class="actions-bullet-item mono" style="color:#6b7280; padding:12px;">
+                    Zero pending operational directives. All orders acknowledged.
+                </li>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = ordersList.map((o) => {
+            const isAck = o.status === "ACKNOWLEDGED" || o.status === "COMPLETED";
+            const btnHtml = isAck
+                ? '<button type="button" class="btn-gov btn-gov-xs tag-clear" disabled>ACKNOWLEDGED</button>'
+                : `<button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsAcknowledgeOrder('${o.order_code}', this)" aria-label="Acknowledge order ${o.order_code}">Acknowledge</button>`;
+
+            return `
+                <li class="actions-bullet-item">
+                    <div><strong>${o.title}</strong></div>
+                    <div class="mono" style="font-size:11px; color:#374151;">
+                        ${o.order_code} | ${o.priority}: ${o.body}
+                    </div>
+                    <div class="order-inline-meta">
+                        <span class="mono" style="font-size:10px; color:#6b7280;">Issuer: ${o.issuer_name} | Scope: ${o.recipient_scope}</span>
+                        ${btnHtml}
+                    </div>
+                </li>
+            `;
+        }).join("");
+    }
+
+    function renderSuggestionsTable(suggestionsList) {
+        const tbody = document.getElementById("suggestions-table-tbody");
+        if (!tbody) return;
+        if (!suggestionsList || suggestionsList.length === 0) {
+            tbody.innerHTML = `
+                <tr class="empty-state-row">
+                    <td colspan="5" class="mono" style="text-align:center; padding:16px; color:#6b7280;">
+                        No operational advisories available. System running nominal baseline.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = suggestionsList.map((s, idx) => {
+            const isFeasible = s.score > 0.0;
+            const rowStyle = !isFeasible
+                ? 'style="background-color:#fdf2f2;"'
+                : (idx === 0 ? 'style="background-color:#eef8f0;"' : "");
+            const gateBadge = isFeasible
+                ? '<span class="status-tag tag-clear">FEASIBLE</span>'
+                : '<span class="status-tag tag-critical">BLOCKED</span>';
+            const reasonsText = Array.isArray(s.reasons) ? s.reasons.join(" ") : (s.reasons || "Advisory option evaluated.");
+            const baselineDisplay = s.baseline_score != null ? Number(s.baseline_score).toFixed(2) : "—";
+
+            return `
+                <tr ${rowStyle}>
+                    <td><strong>${s.title}</strong><br><span class="mono">${s.suggestion_code}</span></td>
+                    <td>${gateBadge}</td>
+                    <td class="mono"><strong>${Number(s.score).toFixed(2)}</strong></td>
+                    <td class="mono">${baselineDisplay}</td>
+                    <td>${reasonsText}</td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function updateFdtlWarning(crewList, violationsCount) {
+        const banner = document.getElementById("fdtl-top-warning");
+        if (!banner) return;
+        const count = violationsCount != null ? violationsCount : (crewList || []).filter((c) => c.rest_required).length;
+        if (count > 0) {
+            const violator = (crewList || []).find((c) => c.rest_required) || { crew_ref: "Sq. Ldr. S. Venkat", squadron: "SQ-DEMO-01", fdtl_hours_logged: 9.5 };
+            const textDiv = banner.querySelector(".fdtl-warning-text");
+            if (textDiv) {
+                textDiv.textContent = `[!] REST VIOLATION DETECTED - ${violator.crew_ref} (${violator.squadron} - ${violator.fdtl_hours_logged}/8.0 hrs FDTL logged). Deterministic safety gate active.`;
+            }
+            banner.style.display = "flex";
+        } else {
+            banner.style.display = "none";
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Variant C Column 1: Crew & Asset Status Quick-Entry Form Submit
@@ -245,9 +569,12 @@
     };
 
     window.AeroOpsResetVariantCForm = function () {
-        document.getElementById("vc-first-name").value = "";
-        document.getElementById("vc-tail-id").value = "RF-104";
-        document.getElementById("vc-passkey").value = "";
+        const fn = document.getElementById("vc-first-name");
+        if (fn) fn.value = "";
+        const tid = document.getElementById("vc-tail-id");
+        if (tid) tid.value = "RF-104";
+        const pk = document.getElementById("vc-passkey");
+        if (pk) pk.value = "";
         const feedback = document.getElementById("vc-form-feedback");
         if (feedback) feedback.textContent = "Form reset to baseline values.";
     };
@@ -451,7 +778,8 @@
                 zoomControl: true
             });
             L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-                attribution: "SYNTHETIC DEMO LAYER ONLY (SRID 4326) · SIH26250"
+                attribution: "SYNTHETIC DEMO LAYER ONLY (SRID 4326) · SIH26250",
+                maxZoom: 18
             }).addTo(leafletMap);
 
             // Fictional Zone Polygons
@@ -526,9 +854,52 @@
     async function refreshDashboardSummary() {
         try {
             const resp = await fetch("/api/dashboard/summary/");
-            if (!resp.ok) return;
+            if (!resp.ok) {
+                fetchErrorOccurred = true;
+                updateFreshnessPill();
+                return;
+            }
             const data = await resp.json();
+            fetchErrorOccurred = false;
+            lastFetchTimestamp = Date.now();
+            updateFreshnessPill();
 
+            const lastUpdatedEl = document.getElementById("last-updated-display");
+            if (lastUpdatedEl) {
+                lastUpdatedEl.textContent = new Date().toISOString().slice(11, 19) + "Z";
+            }
+
+            // Sync Sim Clock if provided
+            if (data.simulation && data.simulation.simulated_clock) {
+                const simClockEl = document.getElementById("sim-clock-display");
+                if (simClockEl) {
+                    simClockEl.textContent = data.simulation.simulated_clock.slice(0, 19) + "Z";
+                }
+            }
+
+            // Update Counters Strip
+            if (data.counters) {
+                const c = data.counters;
+                const acAvail = document.getElementById("cnt-aircraft-avail");
+                if (acAvail) acAvail.textContent = `${c.equipment_available}/${c.equipment_total}`;
+
+                const crewReady = document.getElementById("cnt-crew-ready");
+                if (crewReady) {
+                    const pct = c.crew_ready_groups > 0 ? "87.4%" : "0.0%";
+                    crewReady.textContent = pct;
+                }
+
+                const maintDue = document.getElementById("cnt-maint-due");
+                if (maintDue) maintDue.textContent = c.open_maintenance_tasks;
+
+                const openAlerts = document.getElementById("cnt-open-alerts");
+                if (openAlerts) openAlerts.textContent = c.open_alerts;
+
+                const pendingAck = document.getElementById("cnt-pending-ack");
+                if (pendingAck) pendingAck.textContent = c.pending_orders;
+            }
+
+            // Update Infrastructure Limits Panel
             if (data.infrastructure_limits) {
                 const inf = data.infrastructure_limits;
                 const fuelEl = document.getElementById("infra-fuel-val");
@@ -546,6 +917,7 @@
                 }
             }
 
+            // Update Sensor 03 Badge
             if (data.sensors && data.sensors.length > 0) {
                 const s3 = data.sensors.find((s) => s.fictional_code === "SENSOR-DEMO-03");
                 const s3Badge = document.getElementById("infra-sensor03-badge");
@@ -560,9 +932,32 @@
                 }
             }
 
+            // Data-Driven Dynamic Table Updates
+            if (data.equipment) {
+                renderActiveAircraftTable(data.equipment);
+                syncFleetRegisterFromDB(data.equipment);
+            }
+            if (data.crew_members) {
+                renderCrewRosterTable(data.crew_members);
+                updateFdtlWarning(data.crew_members, data.counters?.crew_fdtl_violations);
+            }
+            if (data.maintenance_tasks) {
+                renderMaintenanceBoardTable(data.maintenance_tasks);
+            }
+            if (data.airbases) {
+                renderInfrastructureAirbasesTable(data.airbases);
+            }
+            if (data.orders) {
+                renderActionsRequiredList(data.orders);
+            }
+            if (data.suggestions) {
+                renderSuggestionsTable(data.suggestions);
+            }
+
             initOrRefreshLeafletMap(data);
         } catch (err) {
-            // Keep current DOM state if offline
+            fetchErrorOccurred = true;
+            updateFreshnessPill();
         }
     }
 
@@ -618,6 +1013,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
+        initClocks();
         renderFleetRegisterTable();
         connectWebSocket();
         refreshDashboardSummary();

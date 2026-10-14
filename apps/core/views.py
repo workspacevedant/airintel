@@ -492,6 +492,45 @@ def api_equipment_status_update_view(request: HttpRequest, equipment_id: str) ->
 
 
 # -------------------------------------------------------------------------
+# 4b. CREW ROSTER ENDPOINT (GET /api/crew/)
+# -------------------------------------------------------------------------
+@require_http_methods(["GET"])
+def api_crew_list_view(request: HttpRequest) -> JsonResponse:
+    """GET /api/crew/ — Scope-filtered list of flight crew readiness and FDTL status (Section 05 & 10)."""
+    try:
+        user = _require_auth(request)
+        enforce_query_scope(user, request)
+        crews = get_visible_crew_readiness(user)
+    except PermissionDenied as exc:
+        return _json_error(str(exc), status=403)
+
+    return JsonResponse(
+        {
+            "count": crews.count(),
+            "results": [
+                {
+                    "id": str(c.id),
+                    "crew_ref": c.crew_ref,
+                    "crew_code": c.crew_code,
+                    "first_name": c.first_name,
+                    "last_name": c.last_name,
+                    "squadron_code": c.squadron.code,
+                    "airbase_code": c.squadron.airbase.code if c.squadron.airbase else None,
+                    "pilot_group_count": c.pilot_group_count,
+                    "ground_support_count": c.ground_support_count,
+                    "duty_state": c.duty_state,
+                    "fdtl_hours_logged": float(c.fdtl_hours_logged),
+                    "rest_required": c.rest_required,
+                    "qualification_status": c.qualification_status,
+                    "notes": c.notes,
+                }
+                for c in crews.order_by("crew_ref")
+            ],
+        }
+    )
+
+
+# -------------------------------------------------------------------------
 # 5. MAINTENANCE ENDPOINTS (GET/POST /api/maintenance/)
 # -------------------------------------------------------------------------
 @require_http_methods(["GET", "POST"])

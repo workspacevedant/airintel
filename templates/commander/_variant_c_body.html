@@ -167,7 +167,7 @@
                 <span class="status-tag tag-critical" style="min-width:auto;">2 PENDING</span>
             </div>
             <div class="gov-panel-body">
-                <ul class="actions-bullet-list">
+                <ul class="actions-bullet-list" id="actions-bullet-list" role="list" aria-label="Operational Actions List">
                     <li class="actions-bullet-item">
                         <div><strong>Urgent dispatch coordination to Ministry of Defence</strong></div>
                         <div class="mono" style="font-size:11px; color:#374151;">
@@ -235,7 +235,7 @@
                         <th>Quick Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="active-aircraft-tbody">
                     <tr>
                         <td class="mono"><strong>SB-512</strong></td>
                         <td>Type-B Multirole</td>
@@ -335,7 +335,7 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="infra-airbases-tbody">
                     <tr>
                         <td class="mono"><strong>AB-DEMO-01</strong></td>
                         <td>Avalon Forward Base (Ambala Sector Demo)</td>
@@ -434,7 +434,7 @@
                         <th>Qualification &amp; Deterministic Constraint Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="crew-roster-tbody">
                     <tr style="background-color:#fff3cd;">
                         <td class="mono"><strong>PLT-17-004</strong></td>
                         <td><strong>Sq. Ldr. S. Venkat</strong></td>
@@ -525,7 +525,7 @@
                             <th>Due At</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="maintenance-board-tbody">
                         <tr>
                             <td class="mono"><strong>FLT-HYD-402</strong></td>
                             <td class="mono">SB-514</td>
@@ -587,7 +587,7 @@
                             <th>Plain-Language Constraint &amp; Ranking Reasons</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="suggestions-table-tbody">
                         <tr style="background-color:#eef8f0;">
                             <td><strong>Option A (Recommended)</strong><br><span class="mono">RF-102 + RF-104</span></td>
                             <td><span class="status-tag tag-clear">FEASIBLE</span></td>

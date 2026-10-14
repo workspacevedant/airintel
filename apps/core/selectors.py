@@ -4,6 +4,7 @@ Guarantees that every query is filtered by the authenticated user's RoleAssignme
 """
 from typing import Dict, Any
 from django.db.models import QuerySet, Q
+from django.utils import timezone
 
 from apps.core.models import (
     Airbase,
@@ -312,5 +313,91 @@ def build_dashboard_summary(user: User) -> Dict[str, Any]:
                 "created_at": s.created_at.isoformat(),
             }
             for s in suggestions_qs[:10]
+        ],
+        "server_time": timezone.now().isoformat(),
+        "equipment": [
+            {
+                "id": str(eq.id),
+                "code": eq.fictional_code,
+                "category": eq.category,
+                "squadron": eq.squadron.code if eq.squadron else "UNASSIGNED",
+                "airbase": eq.airbase.code if eq.airbase else "UNASSIGNED",
+                "payload": eq.payload_config,
+                "radius_km": eq.combat_radius_km,
+                "status": eq.status,
+                "readiness": eq.readiness_state,
+                "last_service": eq.last_service_at.date().isoformat() if eq.last_service_at else "",
+                "next_due": eq.next_due_at.date().isoformat() if eq.next_due_at else "",
+                "past_faults": eq.past_fault_count,
+                "notes": eq.notes,
+            }
+            for eq in equipment_qs.order_by("fictional_code")
+        ],
+        "crew_members": [
+            {
+                "id": str(c.id),
+                "crew_ref": c.crew_ref,
+                "crew_code": c.crew_code,
+                "first_name": c.first_name,
+                "last_name": c.last_name,
+                "squadron": c.squadron.code if c.squadron else "",
+                "airbase": c.squadron.airbase.code if c.squadron and c.squadron.airbase else "",
+                "pilot_group_count": c.pilot_group_count,
+                "ground_support_count": c.ground_support_count,
+                "duty_state": c.duty_state,
+                "fdtl_hours_logged": float(c.fdtl_hours_logged),
+                "rest_required": c.rest_required,
+                "qualification_status": c.qualification_status,
+                "notes": c.notes,
+            }
+            for c in crew_qs.order_by("crew_ref")[:25]
+        ],
+        "maintenance_tasks": [
+            {
+                "id": str(m.id),
+                "fault_code": m.fault_code,
+                "equipment_code": m.equipment.fictional_code if m.equipment else "",
+                "severity": m.severity,
+                "status": m.status,
+                "description": m.description,
+                "due_at": m.due_at.isoformat() if m.due_at else "",
+            }
+            for m in maint_qs.order_by("-created_at")[:15]
+        ],
+        "orders": [
+            {
+                "id": str(o.id),
+                "order_code": o.order_code,
+                "title": o.title,
+                "body": o.body,
+                "priority": o.priority,
+                "status": o.status,
+                "issuer_name": o.issuer.display_name if o.issuer else "ZONAL COMMAND",
+                "recipient_scope": o.recipient_scope,
+                "issued_at": o.issued_at.isoformat() if o.issued_at else "",
+                "due_at": o.due_at.isoformat() if o.due_at else "",
+                "acknowledged_at": o.acknowledged_at.isoformat() if o.acknowledged_at else "",
+            }
+            for o in orders_qs.order_by("-issued_at")[:10]
+        ],
+        "airbases": [
+            {
+                "id": str(ab.id),
+                "code": ab.code,
+                "name": ab.name,
+                "zone_code": ab.zone.code if ab.zone else "",
+                "lat": ab.location.y,
+                "lon": ab.location.x,
+                "runway_primary_label": ab.runway_primary_label,
+                "runway_primary_m": ab.runway_primary_m,
+                "runway_primary_status": ab.runway_primary_status,
+                "runway_secondary_label": ab.runway_secondary_label,
+                "runway_secondary_m": ab.runway_secondary_m,
+                "runway_secondary_status": ab.runway_secondary_status,
+                "arrestor_gear_status": ab.arrestor_gear_status,
+                "fuel_reserves_mt": float(ab.fuel_reserves_mt),
+                "status": ab.status,
+            }
+            for ab in airbases
         ],
     }
