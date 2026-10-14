@@ -1,0 +1,69 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: aero_ops_postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aero_ops}
+      POSTGRES_USER: ${POSTGRES_USER:-aero_ops_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aero_ops_pass}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aero_ops_user} -d ${POSTGRES_DB:-aero_ops}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: aero_ops_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aero_ops_asgi
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py makemigrations core radar_simulation suggestion &&
+             python manage.py migrate &&
+             python manage.py seed_demo_data &&
+             python manage.py ingest_sih_data &&
+             python manage.py train_readiness_model &&
+             daphne -b 0.0.0.0 -p 8000 config.asgi:application"
+    env_file:
+      - .env.example
+    environment:
+      DATABASE_URL: postgis://${POSTGRES_USER:-aero_ops_user}:${POSTGRES_PASSWORD:-aero_ops_pass}@db:5432/${POSTGRES_DB:-aero_ops}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+      - "5008:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - ml_artifacts_volume:/app/ml_artifacts
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgis_data:
+  redis_data:
+  static_volume:
+  ml_artifacts_volume:

@@ -1,0 +1,596 @@
+/* ==========================================================================
+   AERO-OPS (SIH26250) — National Informatics Centre (NIC) / MoD GovTech UI
+   Variant C: Compact Multi-Section Layout
+   Strict Rules: Zero gradients, zero drop-shadows, max 2px border-radius,
+   dense 12px-13px Arial/Helvetica tables & forms, Courier New monospace IDs.
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #1c2026;
+    background-color: #f4f5f7;
+    -webkit-font-smoothing: none;
+}
+
+code, pre, .mono {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+}
+
+/* 1. Top Government Utility Strip (#ffffff with #222222 text) */
+.nic-utility-bar {
+    background-color: #ffffff;
+    color: #222222;
+    border-bottom: 1px solid #cdd2d9;
+    padding: 4px 12px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nic-utility-left {
+    font-weight: bold;
+    color: #222222;
+}
+
+.nic-utility-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #222222;
+}
+
+.nic-utility-right a {
+    color: #002147;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.sim-active-pill {
+    background-color: #fbe9e7;
+    color: #b71c1c;
+    border: 1px solid #c62828;
+    padding: 1px 5px;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+/* 2. Deep Navy Header Bar (#002147) */
+.mod-header-bar {
+    background-color: #002147;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-bottom: 2px solid #08182e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mod-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mod-emblem-svg {
+    width: 30px;
+    height: 36px;
+    flex-shrink: 0;
+}
+
+.mod-title-main {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 0.4px;
+    color: #ffffff;
+    line-height: 1.15;
+}
+
+.mod-title-sub {
+    font-size: 12px;
+    color: #d6e0f0;
+    margin-top: 2px;
+}
+
+.mod-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.role-switch-select {
+    background-color: #ffffff;
+    color: #111111;
+    border: 1px solid #b4bcc7;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    border-radius: 1px;
+}
+
+/* 3. Demo Judge Runbook Control Bar */
+.judge-runbook-bar {
+    background-color: #dde3ec;
+    border-bottom: 1px solid #b4bcc7;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+}
+
+.judge-runbook-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.judge-label {
+    font-weight: bold;
+    color: #002147;
+    text-transform: uppercase;
+}
+
+/* 4. Main Layout Frame (220px Fixed Navy Sidebar + Off-white Stage) */
+.portal-body-frame {
+    display: flex;
+    min-height: calc(100vh - 88px);
+}
+
+.mod-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background-color: #0c2a5e;
+    color: #ffffff;
+    border-right: 1px solid #061736;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.mod-nav-list {
+    list-style: none;
+    margin-top: 6px;
+}
+
+.mod-nav-item {
+    border-bottom: 1px solid #163873;
+}
+
+.mod-nav-link {
+    display: block;
+    padding: 9px 12px;
+    color: #e4ebf5;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.mod-nav-link:hover {
+    background-color: #153c7a;
+    color: #ffffff;
+}
+
+.mod-nav-link.active {
+    background-color: #002147;
+    color: #ffffff;
+    border-left: 4px solid #f2b11b;
+    padding-left: 8px;
+}
+
+.mod-sidebar-footer {
+    padding: 10px 12px;
+    border-top: 1px solid #163873;
+    background-color: #081e45;
+    font-size: 11px;
+    color: #b8c7de;
+}
+
+/* 5. Workspace Stage & Breadcrumb Bar */
+.workspace-stage {
+    flex: 1;
+    background-color: #f4f5f7;
+    padding: 0 12px 18px 12px;
+    overflow-x: auto;
+}
+
+.breadcrumb-bar {
+    background-color: #ffffff;
+    border: 1px solid #cdd2d9;
+    border-top: none;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #333333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 6. Full-Width Yellow FDTL Warning Banner */
+.fdtl-warning-banner {
+    background-color: #fff3cd;
+    color: #5c3c00;
+    border: 1px solid #d6a319;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.fdtl-warning-text {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fdtl-warning-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* 7. Compact 5-Column Overview Counter Strip */
+.counter-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.counter-cell {
+    background-color: #ffffff;
+    border: 1px solid #cdd2d9;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.counter-label {
+    font-size: 11px;
+    color: #4a5568;
+    font-weight: bold;
+}
+
+.counter-val {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: #002147;
+}
+
+/* 8. Variant C 3-Column Main Grid */
+.variant-c-grid {
+    display: grid;
+    grid-template-columns: 31% 33% 34%;
+    gap: 10px;
+    align-items: start;
+    margin-bottom: 10px;
+}
+
+.center-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 9. Utilitarian Panels */
+.gov-panel {
+    background-color: #ffffff;
+    border: 1px solid #cdd2d9;
+    border-radius: 1px;
+}
+
+.gov-panel-header {
+    background-color: #e9edf2;
+    border-bottom: 1px solid #cdd2d9;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #1f2937;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gov-panel-body {
+    padding: 8px 10px;
+}
+
+/* 10. Variant C Boxy Label-Left Input-Right Forms */
+.gov-form-row {
+    display: grid;
+    grid-template-columns: 115px 1fr;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.gov-form-row label {
+    font-size: 12px;
+    color: #222222;
+    font-weight: normal;
+}
+
+.gov-input, .gov-select {
+    width: 100%;
+    height: 24px;
+    padding: 2px 6px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #111111;
+    background-color: #ffffff;
+    border: 1px solid #b4bcc7;
+    border-radius: 1px;
+}
+
+.gov-input:focus, .gov-select:focus {
+    outline: 1px solid #002147;
+    border-color: #002147;
+}
+
+.gov-form-actions {
+    margin-top: 10px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e6ec;
+    display: flex;
+    gap: 6px;
+}
+
+/* 11. Utilitarian Buttons */
+.btn-gov {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    padding: 4px 12px;
+    border: 1px solid #8c96a5;
+    background-color: #e4e7eb;
+    color: #111111;
+    cursor: pointer;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.btn-gov:hover {
+    background-color: #d5dae0;
+}
+
+.btn-gov-primary {
+    background-color: #1f5fa8;
+    border-color: #15457d;
+    color: #ffffff;
+}
+
+.btn-gov-primary:hover {
+    background-color: #174b87;
+}
+
+.btn-gov-danger {
+    background-color: #c62828;
+    border-color: #8e1b1b;
+    color: #ffffff;
+}
+
+.btn-gov-amber {
+    background-color: #f2b11b;
+    border-color: #c78d08;
+    color: #111111;
+}
+
+.btn-gov-xs {
+    padding: 2px 7px;
+    font-size: 11px;
+}
+
+/* 12. Infrastructure Limits Key-Value Rows & Flat Status Tags */
+.infra-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #eef0f4;
+    font-size: 12px;
+}
+
+.infra-row:last-child {
+    border-bottom: none;
+}
+
+.infra-key {
+    color: #222222;
+}
+
+.infra-val-text {
+    font-weight: bold;
+    color: #111111;
+}
+
+.status-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 2px;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    min-width: 58px;
+}
+
+.tag-clear, .tag-green {
+    background-color: #2e7d32;
+    color: #ffffff;
+}
+
+.tag-maint, .tag-amber {
+    background-color: #f2b11b;
+    color: #111111;
+}
+
+.tag-critical, .tag-red {
+    background-color: #c62828;
+    color: #ffffff;
+}
+
+.tag-neutral {
+    background-color: #4a5568;
+    color: #ffffff;
+}
+
+/* 13. Native Radio List ("Input Forms / Operational Directive Toggles") */
+.radio-directive-list {
+    list-style: none;
+}
+
+.radio-directive-item {
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #222222;
+}
+
+.radio-directive-item input[type="radio"],
+.radio-directive-item input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* 14. Column 3: Actions Required Bullet List & AI Advisory Box */
+.actions-bullet-list {
+    list-style: disc;
+    padding-left: 18px;
+    margin-bottom: 10px;
+}
+
+.actions-bullet-item {
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #1f2937;
+}
+
+.order-inline-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3px;
+    gap: 6px;
+}
+
+.xgb-advisory-box {
+    border-top: 1px solid #cdd2d9;
+    padding-top: 8px;
+    margin-top: 8px;
+    background-color: #f9fafc;
+    padding: 8px;
+    border: 1px solid #cdd2d9;
+}
+
+.xgb-header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #002147;
+}
+
+.xgb-reason-list {
+    padding-left: 16px;
+    margin: 5px 0;
+    font-size: 11px;
+    color: #2d3748;
+}
+
+/* 15. Spreadsheet Data Tables */
+.gov-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.gov-table th {
+    background-color: #e9edf2;
+    color: #111111;
+    font-weight: bold;
+    text-align: left;
+    padding: 6px 8px;
+    border: 1px solid #cdd2d9;
+}
+
+.gov-table td {
+    padding: 5px 8px;
+    border: 1px solid #cdd2d9;
+    color: #1c2026;
+}
+
+.gov-table tbody tr:nth-child(even) {
+    background-color: #f8f9fb;
+}
+
+.gov-table tbody tr:hover {
+    background-color: #edf2f7;
+}
+
+/* 16. Live Immutable Audit Terminal */
+.audit-terminal {
+    background-color: #11161d;
+    color: #d1fae5;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    height: 135px;
+    overflow-y: auto;
+    border: 1px solid #2d3748;
+}
+
+.audit-line {
+    padding: 2px 0;
+    border-bottom: 1px dotted #283140;
+    white-space: nowrap;
+}
+
+/* 17. Section Switching & Radar Leaflet Map Container */
+.module-section {
+    display: none;
+}
+
+.module-section.active {
+    display: block;
+}
+
+.radar-map-frame {
+    width: 100%;
+    height: 360px;
+    border: 1px solid #8c96a5;
+    background-color: #0b192c;
+}
+
+@media (max-width: 1024px) {
+    .variant-c-grid {
+        grid-template-columns: 1fr;
+    }
+    .counter-strip-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

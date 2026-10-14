@@ -1,0 +1,967 @@
+[
+{
+  "model": "core.user",
+  "pk": "7b85448c-107a-5a86-a75c-019bb901d5db",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$dIT5JOHAoUGa13ANGhHOd2$b/ROMuO4s4Edg4h5XJBchVEmfRvFg18i9ZBnyTp5uYg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sqldr_sharma",
+    "first_name": "Rohan",
+    "last_name": "Sharma",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-14T10:12:24.619Z",
+    "email": "r.sharma@aero-ops.mod.gov.in",
+    "display_name": "SQ. LDR. R. SHARMA",
+    "requested_designation": "SQUADRON_LEADER",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$ocdSkE0pftbqFg1fCEXvd1$jbdutXLpS7+9QnZhAuspegdDzfJjG6BIWoeZHvZ8iWI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "zonal_knair",
+    "first_name": "Karthik",
+    "last_name": "Nair",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-14T10:12:24.890Z",
+    "email": "k.nair@aero-ops.mod.gov.in",
+    "display_name": "AVM K. NAIR",
+    "requested_designation": "ZONAL_COMMANDER",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": "d817e273-8445-5950-a0f6-6565482f4b70",
+  "fields": {
+    "password": "pbkdf2_sha256$720000$8PfdSxrVr3stZ2tzhQenPl$CuRw7ZgTehGPvB5ix81fvESyGeu/BqsDsi1uxgJhsCI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "cmdr_vsingh",
+    "first_name": "Vikram",
+    "last_name": "Singh",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-14T10:12:24.373Z",
+    "email": "v.singh@aero-ops.mod.gov.in",
+    "display_name": "CMDR V. SINGH",
+    "requested_designation": "AIRBASE_COMMANDER",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.profile",
+  "pk": "d817e273-8445-5950-a0f6-6565482f4b70",
+  "fields": {
+    "display_name": "CMDR V. SINGH",
+    "requested_designation": "AIRBASE_COMMANDER",
+    "service_number": "MOD-SIM-10101",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z"
+  }
+},
+{
+  "model": "core.profile",
+  "pk": "7b85448c-107a-5a86-a75c-019bb901d5db",
+  "fields": {
+    "display_name": "SQ. LDR. R. SHARMA",
+    "requested_designation": "SQUADRON_LEADER",
+    "service_number": "MOD-SIM-20204",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z"
+  }
+},
+{
+  "model": "core.profile",
+  "pk": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+  "fields": {
+    "display_name": "AVM K. NAIR",
+    "requested_designation": "ZONAL_COMMANDER",
+    "service_number": "MOD-SIM-00309",
+    "active": true,
+    "created_at": "2026-09-25T10:30:00Z"
+  }
+},
+{
+  "model": "core.zone",
+  "pk": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+  "fields": {
+    "code": "ZONE-DEMO-A",
+    "name": "Sector 7 — Northern Forward Airspace (Fictional)",
+    "boundary": "SRID=4326;POLYGON ((76.2 30, 77.8 30, 77.8 31.4, 76.2 31.4, 76.2 30))",
+    "is_demo": true,
+    "created_at": "2026-09-10T10:30:00Z"
+  }
+},
+{
+  "model": "core.zone",
+  "pk": "67798724-d867-56d8-b1a9-31f12427ec32",
+  "fields": {
+    "code": "ZONE-DEMO-B",
+    "name": "Sector 8 — Eastern Surveillance Buffer (Fictional)",
+    "boundary": "SRID=4326;POLYGON ((77.8 30, 79.2 30, 79.2 31.4, 77.8 31.4, 77.8 30))",
+    "is_demo": true,
+    "created_at": "2026-09-10T10:30:00Z"
+  }
+},
+{
+  "model": "core.airbase",
+  "pk": "5cae830a-3745-5ce7-add9-759087b5b188",
+  "fields": {
+    "code": "AB-DEMO-02",
+    "name": "Vanguard Logistics Station",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "location": "SRID=4326;POINT (77.35 30.85)",
+    "runway_primary_label": "Runway 04/22",
+    "runway_primary_m": 3000,
+    "runway_primary_status": "CLEAR",
+    "runway_secondary_label": "Runway 11/29",
+    "runway_secondary_m": 2500,
+    "runway_secondary_status": "CLEAR",
+    "arrestor_gear_status": "OPERATIONAL",
+    "fuel_reserves_mt": "620.00",
+    "status": "OPERATIONAL",
+    "is_demo": true,
+    "created_by": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.136Z"
+  }
+},
+{
+  "model": "core.airbase",
+  "pk": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+  "fields": {
+    "code": "AB-DEMO-01",
+    "name": "Avalon Forward Base",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "location": "SRID=4326;POINT (76.82 30.38)",
+    "runway_primary_label": "Runway 09/27",
+    "runway_primary_m": 3200,
+    "runway_primary_status": "CLEAR",
+    "runway_secondary_label": "Runway 14/32",
+    "runway_secondary_m": 2800,
+    "runway_secondary_status": "MAINT",
+    "arrestor_gear_status": "OPERATIONAL",
+    "fuel_reserves_mt": "450.00",
+    "status": "OPERATIONAL",
+    "is_demo": true,
+    "created_by": "d817e273-8445-5950-a0f6-6565482f4b70",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.131Z"
+  }
+},
+{
+  "model": "core.squadron",
+  "pk": "3d9b5bfb-dd6b-5e57-b800-2bb3a79db9ac",
+  "fields": {
+    "code": "SQ-DEMO-02",
+    "name": "No. 45 Surveillance Squadron (Fictional Demo)",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "leader_user": null,
+    "assigned_aircraft_type": "Su-30MKI",
+    "status": "ACTIVE",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.144Z"
+  }
+},
+{
+  "model": "core.squadron",
+  "pk": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+  "fields": {
+    "code": "SQ-DEMO-01",
+    "name": "No. 17 Squadron (Golden Arrows — Fictional Demo)",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "leader_user": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "assigned_aircraft_type": "Dassault Rafale / Su-30MKI",
+    "status": "ACTIVE",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.139Z"
+  }
+},
+{
+  "model": "core.roleassignment",
+  "pk": "26ac532e-5727-51c7-8566-42760386942f",
+  "fields": {
+    "user": "d817e273-8445-5950-a0f6-6565482f4b70",
+    "role": "AIRBASE_COMMANDER",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "squadron": null,
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "status": "ACTIVE",
+    "can_control_simulation": true,
+    "granted_by": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.148Z"
+  }
+},
+{
+  "model": "core.roleassignment",
+  "pk": "747a49d0-ee00-5801-be0c-9467b05388af",
+  "fields": {
+    "user": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "role": "SQUADRON_LEADER",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "zone": null,
+    "status": "ACTIVE",
+    "can_control_simulation": false,
+    "granted_by": "d817e273-8445-5950-a0f6-6565482f4b70",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.152Z"
+  }
+},
+{
+  "model": "core.roleassignment",
+  "pk": "c895ab62-0b3d-53f7-b53a-b7bcc2c64327",
+  "fields": {
+    "user": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "role": "ZONAL_COMMANDER",
+    "airbase": null,
+    "squadron": null,
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "status": "ACTIVE",
+    "can_control_simulation": true,
+    "granted_by": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "created_at": "2026-09-26T10:30:00Z",
+    "updated_at": "2026-10-14T10:12:25.154Z"
+  }
+},
+{
+  "model": "core.equipment",
+  "pk": "2ba697d0-7823-5711-891e-05ffe8877082",
+  "fields": {
+    "fictional_code": "SB-512",
+    "category": "Su-30MKI",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "payload_config": "Extended Endurance Surveillance Config",
+    "weight_delta_kg": 2100,
+    "combat_radius_km": 1500,
+    "status": "AVAILABLE",
+    "readiness_state": "READY",
+    "last_service_at": "2026-09-19T10:30:00Z",
+    "next_due_at": "2026-10-13T10:30:00Z",
+    "past_fault_count": 3,
+    "usage_band": "HIGH",
+    "age_band": "5-8_YEARS",
+    "notes": "Scheduled 100-hr phase inspection approaching in 72 hours.",
+    "created_at": "2026-10-14T10:12:25.166Z",
+    "updated_at": "2026-10-14T10:12:25.166Z"
+  }
+},
+{
+  "model": "core.equipment",
+  "pk": "938d9548-b0e7-5fba-bf65-667def7d90b3",
+  "fields": {
+    "fictional_code": "SB-514",
+    "category": "Su-30MKI",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "payload_config": "Standard Patrol Config",
+    "weight_delta_kg": 1800,
+    "combat_radius_km": 1500,
+    "status": "MAINTENANCE",
+    "readiness_state": "DEGRADED",
+    "last_service_at": "2026-09-12T10:30:00Z",
+    "next_due_at": "2026-10-11T10:30:00Z",
+    "past_fault_count": 5,
+    "usage_band": "HIGH",
+    "age_band": "5-8_YEARS",
+    "notes": "In hangar bay 2 for hydraulic actuator pressure check.",
+    "created_at": "2026-10-14T10:12:25.168Z",
+    "updated_at": "2026-10-14T10:12:25.168Z"
+  }
+},
+{
+  "model": "core.equipment",
+  "pk": "dcac1dc7-1d88-5449-8155-4deb4fde165d",
+  "fields": {
+    "fictional_code": "EQ-DEMO-014",
+    "category": "HAL Tejas Mk1A",
+    "squadron": "3d9b5bfb-dd6b-5e57-b800-2bb3a79db9ac",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "payload_config": "Light Reconnaissance Config",
+    "weight_delta_kg": 850,
+    "combat_radius_km": 1200,
+    "status": "AVAILABLE",
+    "readiness_state": "READY",
+    "last_service_at": "2026-10-05T10:30:00Z",
+    "next_due_at": "2026-11-04T10:30:00Z",
+    "past_fault_count": 0,
+    "usage_band": "LOW",
+    "age_band": "1-3_YEARS",
+    "notes": "Appendix A canonical reference equipment item.",
+    "created_at": "2026-10-14T10:12:25.170Z",
+    "updated_at": "2026-10-14T10:12:25.170Z"
+  }
+},
+{
+  "model": "core.equipment",
+  "pk": "e1aa3fd4-5729-54c1-8c62-743ba5e31160",
+  "fields": {
+    "fictional_code": "RF-104",
+    "category": "Dassault Rafale",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "payload_config": "QRA Interceptor / Patrol Pod",
+    "weight_delta_kg": 1250,
+    "combat_radius_km": 1850,
+    "status": "AVAILABLE",
+    "readiness_state": "READY",
+    "last_service_at": "2026-09-28T10:30:00Z",
+    "next_due_at": "2026-10-28T10:30:00Z",
+    "past_fault_count": 1,
+    "usage_band": "MEDIUM",
+    "age_band": "1-3_YEARS",
+    "notes": "Primary readiness interceptor pair #2 on QRA pad.",
+    "created_at": "2026-10-14T10:12:25.163Z",
+    "updated_at": "2026-10-14T10:12:25.163Z"
+  }
+},
+{
+  "model": "core.equipment",
+  "pk": "e933b1a0-10f5-5eb6-b9cc-46bd5763c464",
+  "fields": {
+    "fictional_code": "RF-102",
+    "category": "Dassault Rafale",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "payload_config": "QRA Interceptor / Patrol Pod",
+    "weight_delta_kg": 1250,
+    "combat_radius_km": 1850,
+    "status": "AVAILABLE",
+    "readiness_state": "READY",
+    "last_service_at": "2026-10-04T10:30:00Z",
+    "next_due_at": "2026-11-03T10:30:00Z",
+    "past_fault_count": 0,
+    "usage_band": "LOW",
+    "age_band": "1-3_YEARS",
+    "notes": "Primary readiness interceptor pair #1 on QRA pad.",
+    "created_at": "2026-10-14T10:12:25.159Z",
+    "updated_at": "2026-10-14T10:12:25.159Z"
+  }
+},
+{
+  "model": "core.maintenancetask",
+  "pk": "59b27497-7ecf-5c92-bb9e-b08a8d852d3c",
+  "fields": {
+    "equipment": "938d9548-b0e7-5fba-bf65-667def7d90b3",
+    "opened_at": "2026-10-10T04:30:00Z",
+    "due_at": "2026-10-10T18:30:00Z",
+    "completed_at": null,
+    "severity": "HIGH",
+    "fault_code": "FLT-HYD-402",
+    "description": "Port aileron hydraulic servo pressure fluctuation during pre-flight test.",
+    "notes": "Replacement seal kit staged; technician team assigned.",
+    "status": "IN_PROGRESS",
+    "assigned_to": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "created_at": "2026-10-14T10:12:25.174Z",
+    "updated_at": "2026-10-14T10:12:25.175Z"
+  }
+},
+{
+  "model": "core.maintenancetask",
+  "pk": "e36da07b-fe6e-5003-b190-78241cf2b252",
+  "fields": {
+    "equipment": "2ba697d0-7823-5711-891e-05ffe8877082",
+    "opened_at": "2026-10-10T08:30:00Z",
+    "due_at": "2026-10-13T10:30:00Z",
+    "completed_at": null,
+    "severity": "MEDIUM",
+    "fault_code": "SCH-100HR-09",
+    "description": "Scheduled 100-hour avionics cooling & radar wave-guide calibration.",
+    "notes": "Advisory flagged by XGBoost readiness model (score 0.73).",
+    "status": "OPEN",
+    "assigned_to": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "created_at": "2026-10-14T10:12:25.180Z",
+    "updated_at": "2026-10-14T10:12:25.180Z"
+  }
+},
+{
+  "model": "core.crewreadiness",
+  "pk": "b36da0cf-9cbe-5811-8791-2a1e2125942e",
+  "fields": {
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "crew_ref": "Flt. Lt. A. Deshmukh & Wg. Cdr. M. Prasad (QRA Pair Alpha)",
+    "first_name": "Arjun",
+    "last_name": "Deshmukh",
+    "crew_code": "PLT-17-001",
+    "pilot_group_count": 2,
+    "ground_support_count": 8,
+    "duty_state": "READY",
+    "fdtl_hours_logged": "3.50",
+    "rest_required": false,
+    "qualification_status": "QUALIFIED",
+    "report_status": "REVIEWED",
+    "notes": "Cleared for immediate Sector 7 QRA dispatch (assigned to RF-102 & RF-104).",
+    "updated_by": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "updated_at": "2026-10-10T10:15:00Z"
+  }
+},
+{
+  "model": "core.crewreadiness",
+  "pk": "de9c4dc5-244f-5e03-895a-4ee9eda1c7d1",
+  "fields": {
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "crew_ref": "Flt. Lt. K. Gill (Standby Lead)",
+    "first_name": "Kabir",
+    "last_name": "Gill",
+    "crew_code": "PLT-17-002",
+    "pilot_group_count": 1,
+    "ground_support_count": 4,
+    "duty_state": "ON_DUTY",
+    "fdtl_hours_logged": "6.00",
+    "rest_required": false,
+    "qualification_status": "QUALIFIED",
+    "report_status": "REVIEWED",
+    "notes": "Qualified on Su-30MKI (SB-512).",
+    "updated_by": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "updated_at": "2026-10-10T10:20:00Z"
+  }
+},
+{
+  "model": "core.crewreadiness",
+  "pk": "f6219cdd-532c-51d4-93a0-b8742ce8910d",
+  "fields": {
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "crew_ref": "Sq. Ldr. S. Venkat",
+    "first_name": "Siddharth",
+    "last_name": "Venkat",
+    "crew_code": "PLT-17-004",
+    "pilot_group_count": 1,
+    "ground_support_count": 4,
+    "duty_state": "REST_REQUIRED",
+    "fdtl_hours_logged": "14.50",
+    "rest_required": true,
+    "qualification_status": "SUSPENDED",
+    "report_status": "REVIEWED",
+    "notes": "ACTIVE FDTL VIOLATION: Logged 14.5h duty in 24h window (limit 12.0h). Mandatory 10h rest enforced by deterministic rule.",
+    "updated_by": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "updated_at": "2026-10-10T10:05:00Z"
+  }
+},
+{
+  "model": "core.readinesssnapshot",
+  "pk": "81b07316-20fc-5f03-8f72-7fce4d16167e",
+  "fields": {
+    "scope": "AB-DEMO-01",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "calculated_at": "2026-10-10T10:30:00Z",
+    "overall_score": 0.82,
+    "component_scores": {
+      "crew_readiness": 0.75,
+      "sensor_freshness": 1.0,
+      "aircraft_availability": 0.8,
+      "infrastructure_health": 0.88
+    },
+    "source_freshness": "LIVE",
+    "explanation": "4/5 aircraft available; Runway 09/27 CLEAR, Runway 14/32 in MAINT; 1 crew member (Sq. Ldr. S. Venkat) under mandatory FDTL rest."
+  }
+},
+{
+  "model": "core.event",
+  "pk": "09739b50-ab4a-5d7b-9920-3f6a9e53a750",
+  "fields": {
+    "event_id": "evt-demo-000105",
+    "scenario_id": "SCENARIO-BASELINE-01",
+    "event_type": "HIGH_PRIORITY_DRILL",
+    "source_type": "synthetic_sensor",
+    "source_id": "SENSOR-DEMO-01",
+    "occurred_at": "2026-10-10T10:30:00Z",
+    "received_at": "2026-10-10T10:30:00Z",
+    "quality": "simulated",
+    "payload": {
+      "state": "coordination_required",
+      "zone_ref": "ZONE-DEMO-A",
+      "track_ref": "H-01 J-20",
+      "order_code": "ORD-0092"
+    },
+    "idempotency_key": "idem-evt-demo-000105"
+  }
+},
+{
+  "model": "core.event",
+  "pk": "c210921f-7cb5-53ca-b7c0-2a08737db71d",
+  "fields": {
+    "event_id": "evt-demo-000104",
+    "scenario_id": "SCENARIO-BASELINE-01",
+    "event_type": "TRACK_UPDATED",
+    "source_type": "synthetic_sensor",
+    "source_id": "SENSOR-DEMO-03",
+    "occurred_at": "2026-10-10T10:30:00Z",
+    "received_at": "2026-10-10T10:30:00Z",
+    "quality": "simulated",
+    "payload": {
+      "state": "under_review",
+      "zone_ref": "ZONE-DEMO-B",
+      "track_ref": "TRACK-DEMO-12"
+    },
+    "idempotency_key": "idem-evt-demo-000104"
+  }
+},
+{
+  "model": "core.alert",
+  "pk": "17efe0d7-b643-5b57-a815-b5a2943a313a",
+  "fields": {
+    "event": "09739b50-ab4a-5d7b-9920-3f6a9e53a750",
+    "severity": "HIGH",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "title": "Sector 7 Track H-01 J-20 — Urgent Dispatch Coordination (ORD-0092)",
+    "summary": "Synthetic track H-01 J-20 detected at 94.5 km bearing 215°. Zonal Order ORD-0092 awaits acknowledgement.",
+    "status": "NEW",
+    "transition_history": [
+      {
+        "actor": "SYSTEM_SIMULATOR",
+        "reason": "Generated from fixed-seed scenario SCENARIO-BASELINE-01 (seed 26250).",
+        "new_state": "NEW",
+        "timestamp": "2026-10-10T10:30:00+00:00",
+        "previous_state": null
+      }
+    ],
+    "created_at": "2026-10-10T10:30:00Z",
+    "resolved_at": null
+  }
+},
+{
+  "model": "core.notification",
+  "pk": "0c0037a8-abb3-5a8c-b8a7-9a1ca131e0f7",
+  "fields": {
+    "alert": "17efe0d7-b643-5b57-a815-b5a2943a313a",
+    "recipient": "7b85448c-107a-5a86-a75c-019bb901d5db",
+    "channel": "INBOX",
+    "message": "Flash Order ORD-0092 in Squadron Inbox: Scramble 2x Interceptors to Sector 7.",
+    "delivered_at": "2026-10-10T10:30:00Z",
+    "acknowledged_at": null,
+    "created_at": "2026-10-14T10:12:25.241Z"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": "527c8de2-b6de-5fbc-917a-b3881ce1ec02",
+  "fields": {
+    "alert": "17efe0d7-b643-5b57-a815-b5a2943a313a",
+    "recipient": "d817e273-8445-5950-a0f6-6565482f4b70",
+    "channel": "INBOX",
+    "message": "Urgent dispatch coordination to Ministry of Defence: Review ORD-0092 options for AB-DEMO-01.",
+    "delivered_at": "2026-10-10T10:30:00Z",
+    "acknowledged_at": null,
+    "created_at": "2026-10-14T10:12:25.239Z"
+  }
+},
+{
+  "model": "core.order",
+  "pk": "b58f14f2-51a2-5175-996d-7185b5a3eb4e",
+  "fields": {
+    "order_code": "ORD-DEMO-0007",
+    "issuer": "d817e273-8445-5950-a0f6-6565482f4b70",
+    "recipient_scope": "SQ-DEMO-01",
+    "target_zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "target_airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "target_squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "title": "Submit Shift Equipment & Crew FDTL Verification Report",
+    "body": "Confirm squadron equipment readiness state and verify mandatory rest lockouts for all flight crews.",
+    "priority": "HIGH",
+    "status": "PENDING",
+    "issued_at": "2026-10-10T10:10:00Z",
+    "due_at": "2026-10-10T11:10:00Z",
+    "acknowledged_by": null,
+    "acknowledged_at": null
+  }
+},
+{
+  "model": "core.order",
+  "pk": "b5da97d9-6b5d-5e53-8101-29112d9d6a1c",
+  "fields": {
+    "order_code": "ORD-0092",
+    "issuer": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "recipient_scope": "SQ-DEMO-01",
+    "target_zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "target_airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "target_squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "title": "Scramble 2x Interceptors to Sector 7",
+    "body": "SYNTHETIC DRILL DIRECTIVE ORD-0092: Dispatch 2x ready interceptor aircraft from Avalon Forward Base (AB-DEMO-01 / SQ-DEMO-01) to Sector 7 (ZONE-DEMO-A) for visual identification and airspace surveillance of synthetic track H-01 J-20. Use Runway 09/27 (CLEAR) and verify FDTL compliance prior to tasking.",
+    "priority": "FLASH",
+    "status": "PENDING",
+    "issued_at": "2026-10-10T10:25:00Z",
+    "due_at": "2026-10-10T10:45:00Z",
+    "acknowledged_by": null,
+    "acknowledged_at": null
+  }
+},
+{
+  "model": "core.auditlog",
+  "pk": "c9bbad22-38ef-5a37-a26e-dc0e72675a93",
+  "fields": {
+    "actor": "a6709aba-198b-5686-81d5-27b6ccdddd07",
+    "action": "DEMO_SEED_INITIALIZED",
+    "object_type": "Scenario",
+    "object_id": "SCENARIO-BASELINE-01",
+    "before": null,
+    "after": {
+      "seed": 26250,
+      "airbase": "AB-DEMO-01",
+      "runway_09_27": "CLEAR",
+      "runway_14_32": "MAINT",
+      "pending_order": "ORD-0092",
+      "fuel_reserves_mt": 450.0
+    },
+    "source": "management_command:seed_demo_data",
+    "created_at": "2026-10-10T10:30:00Z"
+  }
+},
+{
+  "model": "radar_simulation.scenario",
+  "pk": "e894deb0-b87e-55fb-84c3-723a6df560c6",
+  "fields": {
+    "code": "SCENARIO-BASELINE-01",
+    "name": "Sector 7 Dynamic Readiness & Sensor Degradation Drill",
+    "version": "1.0",
+    "seed": 26250,
+    "status": "ACTIVE",
+    "configuration": {
+      "seed": 26250,
+      "zone_code": "ZONE-DEMO-A",
+      "airbase_code": "AB-DEMO-01",
+      "scripted_events": [
+        {
+          "seq": 1,
+          "type": "TRACK_UPDATED",
+          "track": "H-01 J-20",
+          "sensor": "SENSOR-DEMO-01"
+        },
+        {
+          "seq": 2,
+          "type": "TRACK_UPDATED",
+          "track": "TRACK-DEMO-12",
+          "sensor": "SENSOR-DEMO-03"
+        },
+        {
+          "seq": 3,
+          "type": "SENSOR_DEGRADED",
+          "health": "STALE",
+          "sensor": "SENSOR-DEMO-03"
+        },
+        {
+          "seq": 4,
+          "type": "COORDINATION_REQUIRED",
+          "order_code": "ORD-0092"
+        }
+      ],
+      "tick_interval_seconds": 2
+    },
+    "is_demo": true,
+    "created_at": "2026-10-03T10:30:00Z"
+  }
+},
+{
+  "model": "radar_simulation.simulationrun",
+  "pk": "e28f17b0-e0c1-536a-b984-6bc0dfa5b7c3",
+  "fields": {
+    "run_code": "RUN-DEMO-26250-01",
+    "scenario": "e894deb0-b87e-55fb-84c3-723a6df560c6",
+    "started_at": "2026-10-10T10:20:00Z",
+    "ended_at": null,
+    "simulated_clock": "2026-10-10T10:30:00Z",
+    "state": "RUNNING",
+    "speed": 1.0,
+    "seed": 26250,
+    "current_sequence": 2,
+    "last_heartbeat_at": "2026-10-10T10:30:00Z",
+    "initiated_by": "d817e273-8445-5950-a0f6-6565482f4b70"
+  }
+},
+{
+  "model": "radar_simulation.sensornode",
+  "pk": "03f30c24-5ed5-5299-8ca7-99d9bfa94194",
+  "fields": {
+    "scenario": "e894deb0-b87e-55fb-84c3-723a6df560c6",
+    "fictional_code": "SENSOR-DEMO-01",
+    "name": "Avalon High-Level Synthetic Array Alpha",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "location": "SRID=4326;POINT (76.75 30.65)",
+    "coverage_radius_km": 250.0,
+    "health_state": "LIVE",
+    "last_seen_at": "2026-10-10T10:30:00Z",
+    "is_synthetic": true
+  }
+},
+{
+  "model": "radar_simulation.sensornode",
+  "pk": "534d92f4-3827-59d2-850e-d6528c1dba6e",
+  "fields": {
+    "scenario": "e894deb0-b87e-55fb-84c3-723a6df560c6",
+    "fictional_code": "SENSOR-DEMO-02",
+    "name": "Ridgecrest Gap-Filler Synthetic Node Bravo",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "location": "SRID=4326;POINT (77.25 31.05)",
+    "coverage_radius_km": 180.0,
+    "health_state": "LIVE",
+    "last_seen_at": "2026-10-10T10:30:00Z",
+    "is_synthetic": true
+  }
+},
+{
+  "model": "radar_simulation.sensornode",
+  "pk": "737789c8-c919-5bba-b97f-5287344c008f",
+  "fields": {
+    "scenario": "e894deb0-b87e-55fb-84c3-723a6df560c6",
+    "fictional_code": "SENSOR-DEMO-03",
+    "name": "Eastern Sector Synthetic Relay Charlie",
+    "zone": "67798724-d867-56d8-b1a9-31f12427ec32",
+    "location": "SRID=4326;POINT (78.1 30.75)",
+    "coverage_radius_km": 220.0,
+    "health_state": "LIVE",
+    "last_seen_at": "2026-10-10T10:30:00Z",
+    "is_synthetic": true
+  }
+},
+{
+  "model": "radar_simulation.track",
+  "pk": "0d207a6f-0da9-531d-94f3-f8ffadb9ac31",
+  "fields": {
+    "run": "e28f17b0-e0c1-536a-b984-6bc0dfa5b7c3",
+    "fictional_track_code": "TRACK-DEMO-12",
+    "callsign_label": "TRACK-DEMO-12 (Synthetic Border Buffer Track)",
+    "state": "UNDER_REVIEW",
+    "last_position": "SRID=4326;POINT (78.05 30.88)",
+    "bearing": 260.0,
+    "range_km": 68.0,
+    "altitude_m": 7800.0,
+    "speed_kts": 430.0,
+    "quality": "simulated",
+    "source_sensor": "737789c8-c919-5bba-b97f-5287344c008f",
+    "zone": "67798724-d867-56d8-b1a9-31f12427ec32",
+    "last_seen_at": "2026-10-10T10:30:00Z",
+    "created_at": "2026-10-14T10:12:25.221Z"
+  }
+},
+{
+  "model": "radar_simulation.track",
+  "pk": "f5cd4cfd-9241-55ee-a1e8-0c8159652c9c",
+  "fields": {
+    "run": "e28f17b0-e0c1-536a-b984-6bc0dfa5b7c3",
+    "fictional_track_code": "H-01 J-20",
+    "callsign_label": "H-01 J-20 (Synthetic High-Altitude Profile)",
+    "state": "UNDER_REVIEW",
+    "last_position": "SRID=4326;POINT (77.12 31.18)",
+    "bearing": 215.0,
+    "range_km": 94.5,
+    "altitude_m": 11200.0,
+    "speed_kts": 540.0,
+    "quality": "simulated",
+    "source_sensor": "03f30c24-5ed5-5299-8ca7-99d9bfa94194",
+    "zone": "479dad27-a674-5e5c-b955-ac62ea4f9802",
+    "last_seen_at": "2026-10-10T10:30:00Z",
+    "created_at": "2026-10-14T10:12:25.218Z"
+  }
+},
+{
+  "model": "radar_simulation.sensorobservation",
+  "pk": "16e02ce3-915c-5840-84fa-dee20d069248",
+  "fields": {
+    "run": "e28f17b0-e0c1-536a-b984-6bc0dfa5b7c3",
+    "sensor": "03f30c24-5ed5-5299-8ca7-99d9bfa94194",
+    "track": "f5cd4cfd-9241-55ee-a1e8-0c8159652c9c",
+    "sequence_num": 1,
+    "observed_at": "2026-10-10T10:29:30Z",
+    "position": "SRID=4326;POINT (77.12 31.18)",
+    "bearing": 215.0,
+    "range_km": 94.5,
+    "quality": "simulated",
+    "payload": {
+      "zone_ref": "ZONE-DEMO-A",
+      "altitude_m": 11200.0,
+      "fictional_track_code": "H-01 J-20"
+    },
+    "idempotency_key": "obs-26250-run01-seq001"
+  }
+},
+{
+  "model": "radar_simulation.sensorobservation",
+  "pk": "4f142a4a-bb7b-5e35-b2f1-9824925edb8c",
+  "fields": {
+    "run": "e28f17b0-e0c1-536a-b984-6bc0dfa5b7c3",
+    "sensor": "737789c8-c919-5bba-b97f-5287344c008f",
+    "track": "0d207a6f-0da9-531d-94f3-f8ffadb9ac31",
+    "sequence_num": 2,
+    "observed_at": "2026-10-10T10:30:00Z",
+    "position": "SRID=4326;POINT (78.05 30.88)",
+    "bearing": 260.0,
+    "range_km": 68.0,
+    "quality": "simulated",
+    "payload": {
+      "state": "under_review",
+      "zone_ref": "ZONE-DEMO-B",
+      "fictional_track_code": "TRACK-DEMO-12"
+    },
+    "idempotency_key": "obs-26250-run01-seq002"
+  }
+},
+{
+  "model": "suggestion.modelversion",
+  "pk": "7615437a-0670-5987-bb0a-9ea251cbfaf6",
+  "fields": {
+    "model_name": "readiness-xgb-v1",
+    "version": "1.0.0",
+    "task_type": "READINESS_PREDICTION",
+    "artifact_path": "/app/ml_artifacts/readiness_xgb_v1.json",
+    "artifact_checksum": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "feature_schema": [
+      "days_since_last_service",
+      "days_until_next_due",
+      "past_fault_count",
+      "open_maintenance_tasks",
+      "usage_band_encoded",
+      "age_band_encoded"
+    ],
+    "metrics": {
+      "recall": 0.815,
+      "roc_auc": 0.894,
+      "precision": 0.842,
+      "brier_calibration": 0.091,
+      "baseline_logistic_roc_auc": 0.762
+    },
+    "decision_threshold": 0.5,
+    "training_seed": 26250,
+    "training_data_version": "synth-readiness-v1-seed26250",
+    "is_active": true,
+    "trained_at": "2026-10-08T10:30:00Z"
+  }
+},
+{
+  "model": "suggestion.modelversion",
+  "pk": "792f1623-7679-5ad9-ae5c-e575bb8d3246",
+  "fields": {
+    "model_name": "option-scorer-xgb-v1",
+    "version": "1.0.0",
+    "task_type": "OPTION_SCORING",
+    "artifact_path": "/app/ml_artifacts/option_scorer_xgb_v1.json",
+    "artifact_checksum": "sha256:4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    "feature_schema": [
+      "aircraft_ready_ratio",
+      "crew_fdtl_compliant",
+      "runway_primary_clear",
+      "fuel_reserves_adequacy",
+      "maintenance_conflict_score",
+      "data_freshness_score"
+    ],
+    "metrics": {
+      "ndcg_at_3": 0.932,
+      "ranking_agreement_vs_baseline": 0.885
+    },
+    "decision_threshold": 0.6,
+    "training_seed": 26250,
+    "training_data_version": "synth-options-v1-seed26250",
+    "is_active": true,
+    "trained_at": "2026-10-08T10:30:00Z"
+  }
+},
+{
+  "model": "suggestion.suggestion",
+  "pk": "22098b36-92aa-512f-b0e2-b638b536fdfa",
+  "fields": {
+    "suggestion_code": "sugg-demo-002",
+    "kind": "option_score",
+    "scope": "AB-DEMO-01",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "equipment": "e933b1a0-10f5-5eb6-b9cc-46bd5763c464",
+    "related_order": "b5da97d9-6b5d-5e53-8101-29112d9d6a1c",
+    "model_version": "792f1623-7679-5ad9-ae5c-e575bb8d3246",
+    "title": "Option A (Recommended): Task RF-102 + RF-104 via Runway 09/27 with QRA Pair Alpha",
+    "input_snapshot": {
+      "runway": "Runway 09/27 (CLEAR)",
+      "order_code": "ORD-0092",
+      "excluded_crew": [
+        "Sq. Ldr. S. Venkat (FDTL 14.5h violation — hard constraint blocked)"
+      ],
+      "selected_crew": "Flt. Lt. A. Deshmukh & Wg. Cdr. M. Prasad (3.5h FDTL logged)",
+      "fuel_reserves_mt": 450.0,
+      "excluded_aircraft": [
+        "SB-514 (MAINTENANCE)",
+        "SB-512 (72h inspection window)"
+      ],
+      "candidate_aircraft": [
+        "RF-102",
+        "RF-104"
+      ]
+    },
+    "score": 0.91,
+    "baseline_score": 0.88,
+    "uncertainty": 0.04,
+    "data_freshness_label": "LIVE (<10s)",
+    "fallback_used": false,
+    "reasons": [
+      "RF-102 and RF-104 have 18+ days before next scheduled maintenance",
+      "Deterministic constraint engine excluded Sq. Ldr. S. Venkat (14.5h FDTL logged; rest required)",
+      "Runway 09/27 is CLEAR (3200m) and Arrestor Gear is OPERATIONAL; Runway 14/32 bypassed due to MAINT",
+      "Avalon Forward Base Jet-A1 Fuel reserves at 450 MT exceed reserve threshold"
+    ],
+    "disclaimer": "SYNTHETIC ADVISORY ONLY — Requires authorised human commander review.",
+    "data_mode": "synthetic",
+    "status": "advisory",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "review_notes": "",
+    "created_at": "2026-10-10T10:32:00Z"
+  }
+},
+{
+  "model": "suggestion.suggestion",
+  "pk": "db7c0d50-e600-59ce-a766-c28011e80be8",
+  "fields": {
+    "suggestion_code": "sugg-demo-001",
+    "kind": "readiness_warning",
+    "scope": "AB-DEMO-01",
+    "airbase": "ffd98719-83d7-5367-ad7c-b1c90c6591e6",
+    "squadron": "b9b2eb1e-0575-58c7-811e-9a0ac5a7ecbc",
+    "equipment": "2ba697d0-7823-5711-891e-05ffe8877082",
+    "related_order": null,
+    "model_version": "7615437a-0670-5987-bb0a-9ea251cbfaf6",
+    "title": "7-Day Unavailability Risk Flagged for Su-30MKI (SB-512)",
+    "input_snapshot": {
+      "usage_band": "HIGH",
+      "fictional_code": "SB-512",
+      "past_fault_count": 3,
+      "days_until_next_due": 3,
+      "open_maintenance_tasks": 1,
+      "days_since_last_service": 21
+    },
+    "score": 0.73,
+    "baseline_score": 0.68,
+    "uncertainty": 0.06,
+    "data_freshness_label": "LIVE (<15s)",
+    "fallback_used": false,
+    "reasons": [
+      "scheduled maintenance is approaching (due in 3 days)",
+      "source status was updated recently with 3 historical fault records",
+      "high synthetic usage band increases 7-day maintenance probability"
+    ],
+    "disclaimer": "SYNTHETIC ADVISORY ONLY — Requires authorised human commander review.",
+    "data_mode": "synthetic",
+    "status": "advisory",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "review_notes": "",
+    "created_at": "2026-10-10T10:32:00Z"
+  }
+}
+]

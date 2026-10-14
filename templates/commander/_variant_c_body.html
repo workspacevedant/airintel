@@ -1,0 +1,617 @@
+<!-- =========================================================================
+     MODULE 1: AIRBASE DASHBOARD (DEFAULT LANDING — EXACT VARIANT C LAYOUT)
+     ========================================================================= -->
+<section id="sec-dashboard" class="module-section active">
+
+    <!-- 1. Top Full-Width Yellow FDTL Warning Banner -->
+    <div id="fdtl-top-warning" class="fdtl-warning-banner" role="alert">
+        <div class="fdtl-warning-text">
+            [!] REST VIOLATION DETECTED - Sq. Ldr. S. Venkat (No. 17 Squadron - 9.5/8.0 hrs FDTL logged). Precision Guided Munition - BLK...
+        </div>
+        <div class="fdtl-warning-actions">
+            <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsSwitchModule('crew', document.querySelectorAll('.mod-nav-link')[3])">Review Roster</button>
+            <button type="button" class="btn-gov btn-gov-xs" onclick="document.getElementById('fdtl-top-warning').style.display='none'">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- 2. Compact 5-Column Utilitarian Overview Counter Strip -->
+    <div class="counter-strip-grid">
+        <div class="counter-cell">
+            <span class="counter-label">Aircraft Available</span>
+            <span class="counter-val" id="cnt-aircraft-avail">14/18</span>
+        </div>
+        <div class="counter-cell">
+            <span class="counter-label">Crew Readiness</span>
+            <span class="counter-val" id="cnt-crew-ready">87.4%</span>
+        </div>
+        <div class="counter-cell">
+            <span class="counter-label">Maintenance Due</span>
+            <span class="counter-val" id="cnt-maint-due" style="color:#b7791f;">3</span>
+        </div>
+        <div class="counter-cell">
+            <span class="counter-label">Open Alerts</span>
+            <span class="counter-val" id="cnt-open-alerts" style="color:#c62828;">2</span>
+        </div>
+        <div class="counter-cell">
+            <span class="counter-label">Pending Acknowledgements</span>
+            <span class="counter-val" id="cnt-pending-ack">2</span>
+        </div>
+    </div>
+
+    <!-- 3. Variant C 3-Column Main Grid (Matching Screenshot Proportions) -->
+    <div class="variant-c-grid">
+
+        <!-- COLUMN 1 (LEFT): Crew Status Entry (Boxy Label-Left, Input-Right Form) -->
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Crew Status Entry</span>
+                <span class="mono" style="font-size:11px; color:#4a5568;">AB-DEMO-01</span>
+            </div>
+            <div class="gov-panel-body">
+                <form id="variant-c-override-form" onsubmit="window.AeroOpsSubmitVariantCForm(event)">
+                    <div class="gov-form-row">
+                        <label for="vc-runway-req">Runway<br>Required</label>
+                        <input type="text" id="vc-runway-req" class="gov-input mono" value="AB-DEMO-01">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-crew-select">Crew Name</label>
+                        <select id="vc-crew-select" class="gov-select">
+                            <option value="Sq. Ldr. S. Venkat" selected>AB-DEMO-01 &middot; Sq. Ldr. S. Venkat</option>
+                            <option value="Flt. Lt. A. Deshmukh">AB-DEMO-01 &middot; Flt. Lt. A. Deshmukh</option>
+                            <option value="Wg. Cdr. M. Prasad">AB-DEMO-01 &middot; Wg. Cdr. M. Prasad</option>
+                            <option value="Flt. Lt. K. Gill">AB-DEMO-01 &middot; Flt. Lt. K. Gill</option>
+                        </select>
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-first-name">First Name</label>
+                        <input type="text" id="vc-first-name" class="gov-input" value="Siddharth" placeholder="Officer First Name">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-tail-id">Target Airframe /<br>Tail ID</label>
+                        <input type="text" id="vc-tail-id" class="gov-input mono" value="RF-104" placeholder="e.g. SB-512, RF-102">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-squadron-code">Squadron Code</label>
+                        <input type="text" id="vc-squadron-code" class="gov-input mono" value="SQ-DEMO-01">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-duty-state">Latat ID /<br>Duty State</label>
+                        <select id="vc-duty-state" class="gov-select">
+                            <option value="REST_REQUIRED" selected>REST_REQUIRED (FDTL Lock)</option>
+                            <option value="READY">READY (Cleared for QRA)</option>
+                            <option value="ON_DUTY">ON_DUTY (Active Shift)</option>
+                            <option value="TRAINING">TRAINING (Sim Drill)</option>
+                        </select>
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-payload-cfg">Fuel / Payload<br>Config</label>
+                        <input type="text" id="vc-payload-cfg" class="gov-input" value="450 MT / QRA Patrol Pod">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="vc-passkey">Password</label>
+                        <input type="password" id="vc-passkey" class="gov-input" value="AeroOps26250" placeholder="Authorising Passkey">
+                    </div>
+                    <div class="gov-form-actions">
+                        <button type="submit" class="btn-gov btn-gov-primary">Apply</button>
+                        <button type="button" class="btn-gov" onclick="window.AeroOpsResetVariantCForm()">Cancel</button>
+                    </div>
+                    <div id="vc-form-feedback" class="mono" style="margin-top:6px; font-size:11px; color:#4a5568;"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- COLUMN 2 (CENTER STACK): Infrastructure Limits + Input Forms / Operational Directives -->
+        <div class="center-stack">
+            <!-- Center Top: Infrastructure Limits -->
+            <div class="gov-panel">
+                <div class="gov-panel-header">
+                    <span>Infrastructure Limits</span>
+                    <span class="mono" style="font-size:11px;">SECTOR-7</span>
+                </div>
+                <div class="gov-panel-body">
+                    <div class="infra-row">
+                        <span class="infra-key">Jet-A1 Fuel:</span>
+                        <span class="infra-val-text mono" id="infra-fuel-val">450 MT (85%)</span>
+                    </div>
+                    <div class="infra-row">
+                        <span class="infra-key">Runway 09/27:</span>
+                        <span class="status-tag tag-clear" id="infra-rwy1-badge">CLEAR</span>
+                    </div>
+                    <div class="infra-row">
+                        <span class="infra-key">Runway 14/32:</span>
+                        <span class="status-tag tag-maint" id="infra-rwy2-badge">MAINT</span>
+                    </div>
+                    <div class="infra-row">
+                        <span class="infra-key">Arrestor Gear:</span>
+                        <span class="status-tag tag-clear" id="infra-gear-badge">ONLINE</span>
+                    </div>
+                    <div class="infra-row">
+                        <span class="infra-key">Sensor Node 03:</span>
+                        <span class="status-tag tag-clear" id="infra-sensor03-badge">LIVE - 2s ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Bottom: Input Forms / Operational Directive Toggles (Native Radio Controls) -->
+            <div class="gov-panel">
+                <div class="gov-panel-header">
+                    <span>Input Forms &middot; Operational Directives</span>
+                </div>
+                <div class="gov-panel-body">
+                    <ul class="radio-directive-list">
+                        <li class="radio-directive-item">
+                            <input type="radio" id="rad-dir-1" name="vc_input_form_mode" value="air_unmanned" checked onchange="window.AeroOpsApplyDirectiveRadio('enforce_fdtl')">
+                            <label for="rad-dir-1">Enforce Standard FDTL Rest Minimums (Air Unmanned)</label>
+                        </li>
+                        <li class="radio-directive-item">
+                            <input type="radio" id="rad-dir-2" name="vc_input_form_mode" value="runway_status" onchange="window.AeroOpsApplyDirectiveRadio('inspect_rwy_14_32')">
+                            <label for="rad-dir-2">Authorise Emergency Runway 14/32 Inspection (Runway Status)</label>
+                        </li>
+                        <li class="radio-directive-item">
+                            <input type="radio" id="rad-dir-3" name="vc_input_form_mode" value="runway_request" onchange="window.AeroOpsApplyDirectiveRadio('resupply_fuel')">
+                            <label for="rad-dir-3">Request Zonal Jet-A1 Convoy Resupply (Runway Request)</label>
+                        </li>
+                        <li class="radio-directive-item">
+                            <input type="radio" id="rad-dir-4" name="vc_input_form_mode" value="resource_allotment" onchange="window.AeroOpsApplyDirectiveRadio('lockdown_perimeter')">
+                            <label for="rad-dir-4">Lock Down Base Perimeter &amp; Pause Sorties (Resource Allotment)</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMN 3 (RIGHT): Actions Required & Explainable XGBoost Advisory Inbox -->
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Actions Required</span>
+                <span class="status-tag tag-critical" style="min-width:auto;">2 PENDING</span>
+            </div>
+            <div class="gov-panel-body">
+                <ul class="actions-bullet-list">
+                    <li class="actions-bullet-item">
+                        <div><strong>Urgent dispatch coordination to Ministry of Defence</strong></div>
+                        <div class="mono" style="font-size:11px; color:#374151;">
+                            ORD-0092 | CRITICAL: Scramble 2x Interceptors (RF-102, RF-104) to Sector 7 via Runway 09/27.
+                        </div>
+                        <div class="order-inline-meta">
+                            <span class="mono" style="font-size:10px; color:#6b7280;">Issuer: AVM K. NAIR (ZONE-DEMO-A)</span>
+                            <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsAcknowledgeOrder('ORD-0092', this)">Acknowledge</button>
+                        </div>
+                    </li>
+                    <li class="actions-bullet-item">
+                        <div><strong>Urgent dispatch coordination dispatch / Fuel &amp; FDTL Sync</strong></div>
+                        <div class="mono" style="font-size:11px; color:#374151;">
+                            ORD-DEMO-0007 / ORD-0084 | ROUTINE: Acknowledge Jet-A1 convoy ETA 1800Z &amp; verify FDTL lockouts.
+                        </div>
+                        <div class="order-inline-meta">
+                            <span class="mono" style="font-size:10px; color:#6b7280;">Scope: AB-DEMO-01 / SQ-DEMO-01</span>
+                            <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsAcknowledgeOrder('ORD-DEMO-0007', this)">Acknowledge</button>
+                        </div>
+                    </li>
+                </ul>
+
+                <!-- Explainable XGBoost Advisory Box -->
+                <div class="xgb-advisory-box">
+                    <div class="xgb-header-line">
+                        <span>AI Advisory: <span class="mono">readiness-xgb-v1</span></span>
+                        <span id="xgb-advisory-status-badge" class="status-tag tag-maint">ADVISORY</span>
+                    </div>
+                    <div class="mono" style="font-size:11px; margin-bottom:4px;">
+                        Readiness Risk Score: <strong>0.73</strong> (Baseline: <strong>0.68</strong> &plusmn; 0.06) | Mode: <strong>synthetic</strong>
+                    </div>
+                    <ul class="xgb-reason-list">
+                        <li>RF-104 / SB-512 scheduled maintenance approaching (due within 72h window)</li>
+                        <li>Runway 09/27 CLEAR and lowest scramble latency; Runway 14/32 bypassed (MAINT)</li>
+                        <li>Deterministic rule blocked Sq. Ldr. S. Venkat (FDTL violation) &mdash; assigned QRA Pair Alpha</li>
+                        <li>Sensor feed healthy (SENSOR-DEMO-01, 02, 03 active)</li>
+                    </ul>
+                    <div style="display:flex; gap:6px; margin-top:6px;">
+                        <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsReviewSuggestion('sugg-demo-001', 'accepted')">Accept Advisory</button>
+                        <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsReviewSuggestion('sugg-demo-001', 'dismissed')">Dismiss</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Bottom Full-Width Panel 1: Squadron Readiness & Maintenance Board Table -->
+    <div class="gov-panel" style="margin-bottom:10px;">
+        <div class="gov-panel-header">
+            <span>Squadron Readiness &amp; Maintenance Board — Avalon Forward Base (AB-DEMO-01)</span>
+            <span class="mono" style="font-size:11px;">No. 17 Squadron (SQ-DEMO-01) &amp; No. 45 Squadron (SQ-DEMO-02)</span>
+        </div>
+        <div class="gov-panel-body" style="padding:0;">
+            <table class="gov-table">
+                <thead>
+                    <tr>
+                        <th>Tail ID</th>
+                        <th>Category</th>
+                        <th>Squadron</th>
+                        <th>Payload / Config</th>
+                        <th>Last Service</th>
+                        <th>Next Due</th>
+                        <th>Status</th>
+                        <th>Readiness &amp; Fault Notes</th>
+                        <th>Quick Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono"><strong>SB-512</strong></td>
+                        <td>Su-30MKI</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td>Extended Endurance Surveillance Config</td>
+                        <td class="mono">2026-09-19</td>
+                        <td class="mono">2026-10-13</td>
+                        <td><span class="status-tag tag-clear">AVAILABLE</span></td>
+                        <td>SCH-100HR-09: Scheduled 100-hr phase inspection approaching (XGBoost 0.73)</td>
+                        <td><button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('SB-512', 'MAINTENANCE')">Mark Maint</button></td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>RF-102</strong></td>
+                        <td>Dassault Rafale</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td>QRA Interceptor / Patrol Pod</td>
+                        <td class="mono">2026-10-04</td>
+                        <td class="mono">2026-11-03</td>
+                        <td><span class="status-tag tag-clear">AVAILABLE</span></td>
+                        <td>QRA Pair #1 Ready on Runway 09/27 Apron (Assigned to ORD-0092)</td>
+                        <td><button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('RF-102', 'AIRBORNE')">Scramble</button></td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>RF-104</strong></td>
+                        <td>Dassault Rafale</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td>QRA Interceptor / Patrol Pod</td>
+                        <td class="mono">2026-09-28</td>
+                        <td class="mono">2026-10-28</td>
+                        <td><span class="status-tag tag-maint">AVIONICS CHECK</span></td>
+                        <td>Avionics Sync Fault - Est. T-4 HRS (Backup QRA Interceptor #2)</td>
+                        <td><button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('RF-104', 'AVAILABLE')">Verify Ready</button></td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>SB-514</strong></td>
+                        <td>Su-30MKI</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td>Standard Patrol Config</td>
+                        <td class="mono">2026-09-12</td>
+                        <td class="mono">2026-10-11</td>
+                        <td><span class="status-tag tag-critical">MAINTENANCE</span></td>
+                        <td>FLT-HYD-402: Port aileron hydraulic servo pressure check in Hangar Bay 2</td>
+                        <td><button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsQuickToggleAircraft('SB-514', 'INSPECTED')">Complete</button></td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>EQ-DEMO-014</strong></td>
+                        <td>HAL Tejas Mk1A</td>
+                        <td class="mono">SQ-DEMO-02</td>
+                        <td>Light Reconnaissance Config</td>
+                        <td class="mono">2026-10-05</td>
+                        <td class="mono">2026-11-04</td>
+                        <td><span class="status-tag tag-clear">AVAILABLE</span></td>
+                        <td>Nominal readiness — Standby Sector 7 surveillance reserve</td>
+                        <td><button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsQuickToggleAircraft('EQ-DEMO-014', 'MAINTENANCE')">Mark Maint</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Bottom Full-Width Panel 2: Live Immutable Audit Terminal -->
+    <div class="gov-panel">
+        <div class="gov-panel-header">
+            <span>Live Immutable Audit Terminal (Append-Only PostgreSQL AuditLog)</span>
+            <span class="mono" style="font-size:11px;">save() / delete() MUTATION LOCKED</span>
+        </div>
+        <div id="live-audit-terminal" class="audit-terminal">
+            <div class="audit-line">[14:32:01Z] ACTOR: CMDR_SINGH | ACTION: ACK_ORDER | OBJ: ORD-0092 | STATUS: COMMITTED</div>
+            <div class="audit-line">[14:30:44Z] ACTOR: SYSTEM_RULE | ACTION: FDTL_LOCKOUT_ENFORCED | OBJ: SQ_LDR_S_VENKAT (9.5/8.0 HRS) | STATUS: BLOCKED</div>
+            <div class="audit-line">[14:29:15Z] ACTOR: XGBOOST_V1 | ACTION: READINESS_ADVISORY | OBJ: SUGG-DEMO-001 (SCORE 0.73) | STATUS: ADVISORY</div>
+            <div class="audit-line">[14:28:00Z] ACTOR: SIM_ENGINE | ACTION: SCENARIO_SEED_26250 | OBJ: SCENARIO-BASELINE-01 | STATUS: RUNNING</div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     MODULE 2: BASE INFRASTRUCTURE (AIRBASE & SQUADRON REGISTRY)
+     ========================================================================= -->
+<section id="sec-infrastructure" class="module-section">
+    <div class="gov-panel" style="margin-bottom:10px;">
+        <div class="gov-panel-header">
+            <span>Base Infrastructure &amp; Spatial Airbase Registry (PostGIS SRID 4326)</span>
+            <span class="mono">ZONE-DEMO-A</span>
+        </div>
+        <div class="gov-panel-body" style="padding:0;">
+            <table class="gov-table">
+                <thead>
+                    <tr>
+                        <th>Airbase Code</th>
+                        <th>Fictional Base Name</th>
+                        <th>Zone</th>
+                        <th>Coordinates (WGS84)</th>
+                        <th>Primary Runway</th>
+                        <th>Secondary Runway</th>
+                        <th>Arrestor Gear</th>
+                        <th>Jet-A1 Fuel</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono"><strong>AB-DEMO-01</strong></td>
+                        <td>Avalon Forward Base (Ambala Sector Demo)</td>
+                        <td class="mono">ZONE-DEMO-A</td>
+                        <td class="mono">30.3800° N, 76.8200° E</td>
+                        <td>09/27 (3200m) <span class="status-tag tag-clear">CLEAR</span></td>
+                        <td>14/32 (2800m) <span class="status-tag tag-maint">MAINT</span></td>
+                        <td><span class="status-tag tag-clear">OPERATIONAL</span></td>
+                        <td class="mono">450.00 MT</td>
+                        <td><span class="status-tag tag-clear">OPERATIONAL</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>AB-DEMO-02</strong></td>
+                        <td>Vanguard Logistics Station</td>
+                        <td class="mono">ZONE-DEMO-A</td>
+                        <td class="mono">30.8500° N, 77.3500° E</td>
+                        <td>04/22 (3000m) <span class="status-tag tag-clear">CLEAR</span></td>
+                        <td>11/29 (2500m) <span class="status-tag tag-clear">CLEAR</span></td>
+                        <td><span class="status-tag tag-clear">OPERATIONAL</span></td>
+                        <td class="mono">620.00 MT</td>
+                        <td><span class="status-tag tag-clear">OPERATIONAL</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     MODULE 3: FLEET MANAGEMENT (25 IAF AIRCRAFT REGISTER + FILTERS)
+     ========================================================================= -->
+<section id="sec-fleet" class="module-section">
+    <div class="gov-panel">
+        <div class="gov-panel-header">
+            <span>Fictional Airbase Fleet Register (<span id="fleet-register-count">25 / 25</span> Assets Displayed)</span>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <select id="fleet-filter-category" class="gov-select" style="width:165px;" onchange="window.AeroOpsFilterFleet()">
+                    <option value="ALL">All Categories (25)</option>
+                    <option value="Dassault Rafale">Dassault Rafale</option>
+                    <option value="Su-30MKI">Su-30MKI</option>
+                    <option value="HAL Tejas Mk1A">HAL Tejas Mk1A</option>
+                    <option value="Ground Support / Radar Unit">Ground Support / Radar</option>
+                </select>
+                <select id="fleet-filter-status" class="gov-select" style="width:140px;" onchange="window.AeroOpsFilterFleet()">
+                    <option value="ALL">All Statuses</option>
+                    <option value="AVAILABLE">AVAILABLE</option>
+                    <option value="AIRBORNE">AIRBORNE</option>
+                    <option value="MAINTENANCE">MAINTENANCE</option>
+                    <option value="UNAVAILABLE">UNAVAILABLE</option>
+                </select>
+                <input type="text" id="fleet-filter-search" class="gov-input mono" style="width:150px;" placeholder="Filter Tail ID..." oninput="window.AeroOpsFilterFleet()">
+            </div>
+        </div>
+        <div class="gov-panel-body" style="padding:0;">
+            <table class="gov-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tail ID</th>
+                        <th>Aircraft / Equipment Category</th>
+                        <th>Squadron</th>
+                        <th>Payload Configuration</th>
+                        <th>Combat Radius</th>
+                        <th>Status</th>
+                        <th>Next Service</th>
+                        <th>Operational Notes</th>
+                        <th>State Transition</th>
+                    </tr>
+                </thead>
+                <tbody id="fleet-25-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     MODULE 4: CREW STATUS & FDTL ROSTER
+     ========================================================================= -->
+<section id="sec-crew" class="module-section">
+    <div class="gov-panel">
+        <div class="gov-panel-header">
+            <span>Squadron Flight Crew Roster &amp; FDTL Rest Compliance (Deterministic Gate)</span>
+            <span class="mono">MAX 8.0H / 12.0H WINDOW</span>
+        </div>
+        <div class="gov-panel-body" style="padding:0;">
+            <table class="gov-table">
+                <thead>
+                    <tr>
+                        <th>Crew ID</th>
+                        <th>Officer / Crew Designation</th>
+                        <th>Squadron</th>
+                        <th>Pilots / Ground</th>
+                        <th>FDTL Hours Logged</th>
+                        <th>Rest Required</th>
+                        <th>Duty State</th>
+                        <th>Qualification &amp; Deterministic Constraint Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color:#fff3cd;">
+                        <td class="mono"><strong>PLT-17-004</strong></td>
+                        <td><strong>Sq. Ldr. S. Venkat</strong></td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td class="mono">1 Pilot / 4 Ground</td>
+                        <td class="mono" style="color:#c62828; font-weight:bold;">9.5 / 8.0 hrs (14.5h/24h)</td>
+                        <td><span class="status-tag tag-critical">REST REQUIRED</span></td>
+                        <td><span class="status-tag tag-critical">REST_REQUIRED</span></td>
+                        <td><strong>HARD CONSTRAINT LOCKED:</strong> Excluded from ORD-0092 scramble pool until 10h mandatory rest completes.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>PLT-17-001</strong></td>
+                        <td>Flt. Lt. A. Deshmukh &amp; Wg. Cdr. M. Prasad (QRA Pair Alpha)</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td class="mono">2 Pilots / 8 Ground</td>
+                        <td class="mono">3.5 / 8.0 hrs</td>
+                        <td><span class="status-tag tag-clear">NO</span></td>
+                        <td><span class="status-tag tag-clear">READY</span></td>
+                        <td>QUALIFIED — Assigned to RF-102 &amp; RF-104 for Sector 7 QRA dispatch.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono"><strong>PLT-17-002</strong></td>
+                        <td>Flt. Lt. K. Gill (Standby Lead)</td>
+                        <td class="mono">SQ-DEMO-01</td>
+                        <td class="mono">1 Pilot / 4 Ground</td>
+                        <td class="mono">6.0 / 8.0 hrs</td>
+                        <td><span class="status-tag tag-clear">NO</span></td>
+                        <td><span class="status-tag tag-maint">ON_DUTY</span></td>
+                        <td>QUALIFIED — Cleared on Su-30MKI (SB-512).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     MODULE 5: MAINTENANCE & REFIT BOARD + UPGRADE FORM
+     ========================================================================= -->
+<section id="sec-maintenance" class="module-section">
+    <div class="variant-c-grid" style="grid-template-columns: 36% 63%;">
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Log Maintenance / Avionics Refit Task</span>
+            </div>
+            <div class="gov-panel-body">
+                <form onsubmit="window.AeroOpsCreateMaintenanceTask(event)">
+                    <div class="gov-form-row">
+                        <label for="maint-equip-code">Target Tail ID</label>
+                        <input type="text" id="maint-equip-code" class="gov-input mono" value="RF-104">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="maint-fault-code">Fault / Refit Code</label>
+                        <input type="text" id="maint-fault-code" class="gov-input mono" value="FLT-AVN-104">
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="maint-severity">Severity</label>
+                        <select id="maint-severity" class="gov-select">
+                            <option value="HIGH" selected>HIGH</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="CRITICAL">CRITICAL</option>
+                            <option value="LOW">LOW</option>
+                        </select>
+                    </div>
+                    <div class="gov-form-row">
+                        <label for="maint-desc">Work Description</label>
+                        <input type="text" id="maint-desc" class="gov-input" value="Avionics sync fault &amp; radar wave-guide refit">
+                    </div>
+                    <div class="gov-form-actions">
+                        <button type="submit" class="btn-gov btn-gov-primary">Create Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Active Work Orders (OPEN &rarr; IN_PROGRESS &rarr; WAITING_PARTS &rarr; COMPLETED &rarr; VERIFIED)</span>
+            </div>
+            <div class="gov-panel-body" style="padding:0;">
+                <table class="gov-table">
+                    <thead>
+                        <tr>
+                            <th>Fault Code</th>
+                            <th>Airframe</th>
+                            <th>Severity</th>
+                            <th>Workflow Status</th>
+                            <th>Description</th>
+                            <th>Due At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono"><strong>FLT-HYD-402</strong></td>
+                            <td class="mono">SB-514</td>
+                            <td><span class="status-tag tag-critical">HIGH</span></td>
+                            <td><span class="status-tag tag-maint">IN_PROGRESS</span></td>
+                            <td>Port aileron hydraulic servo pressure fluctuation during pre-flight test.</td>
+                            <td class="mono">2026-10-10T18:30Z</td>
+                        </tr>
+                        <tr>
+                            <td class="mono"><strong>SCH-100HR-09</strong></td>
+                            <td class="mono">SB-512</td>
+                            <td><span class="status-tag tag-maint">MEDIUM</span></td>
+                            <td><span class="status-tag tag-neutral">OPEN</span></td>
+                            <td>Scheduled 100-hour avionics cooling &amp; radar wave-guide calibration.</td>
+                            <td class="mono">2026-10-13T10:30Z</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     MODULE 6: SCENARIO PLAYBACK, LEAFLET RADAR MAP & MILP OPTION SOLVER
+     ========================================================================= -->
+<section id="sec-radar" class="module-section">
+    <div class="variant-c-grid" style="grid-template-columns: 56% 43%;">
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Fictional Operational Picture — Leaflet PostGIS Map (SRID 4326)</span>
+                <span class="sim-active-pill">SYNTHETIC RADAR FEED (SEED 26250)</span>
+            </div>
+            <div class="gov-panel-body">
+                <div id="leaflet-radar-map" class="radar-map-frame"></div>
+                <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                    <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsJudgeAction('step')">Step Next Observation</button>
+                    <button type="button" class="btn-gov btn-gov-xs btn-gov-danger" onclick="window.AeroOpsJudgeAction('inject_fault')">Inject SENSOR-DEMO-03 Outage</button>
+                    <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsJudgeAction('pause')">Pause Runner</button>
+                    <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsJudgeAction('resume')">Resume Runner</button>
+                    <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsJudgeAction('reset')">Hard Reset Seed 26250</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="gov-panel">
+            <div class="gov-panel-header">
+                <span>Operation Planning &amp; MILP / XGBoost Option Solver (ORD-0092)</span>
+                <span class="mono">option-scorer-xgb-v1</span>
+            </div>
+            <div class="gov-panel-body" style="padding:0;">
+                <table class="gov-table">
+                    <thead>
+                        <tr>
+                            <th>Option Package</th>
+                            <th>Feasibility Gate</th>
+                            <th>XGB Score</th>
+                            <th>Rule Baseline</th>
+                            <th>Plain-Language Constraint &amp; Ranking Reasons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color:#eef8f0;">
+                            <td><strong>Option A (Recommended)</strong><br><span class="mono">RF-102 + RF-104</span></td>
+                            <td><span class="status-tag tag-clear">FEASIBLE</span></td>
+                            <td class="mono"><strong>0.91</strong></td>
+                            <td class="mono">0.88</td>
+                            <td>Runway 09/27 CLEAR (3200m); Fuel 450 MT &ge; 175 MT req; QRA Pair Alpha FDTL-compliant (3.5h).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Option B (Secondary)</strong><br><span class="mono">SB-512 + EQ-DEMO-014</span></td>
+                            <td><span class="status-tag tag-clear">FEASIBLE</span></td>
+                            <td class="mono"><strong>0.74</strong></td>
+                            <td class="mono">0.72</td>
+                            <td>Feasible, but SB-512 has scheduled 100-hr maintenance due in 72 hours.</td>
+                        </tr>
+                        <tr style="background-color:#fdf2f2;">
+                            <td><strong>Option C (Blocked)</strong><br><span class="mono">SB-512 + SB-514 (Sq. Ldr. Venkat)</span></td>
+                            <td><span class="status-tag tag-critical">BLOCKED</span></td>
+                            <td class="mono"><strong>0.00</strong></td>
+                            <td class="mono">0.00</td>
+                            <td><strong>REJECTED BY DETERMINISTIC GATE:</strong> Sq. Ldr. S. Venkat has active FDTL rest violation; SB-514 in MAINTENANCE.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

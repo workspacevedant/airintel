@@ -1,0 +1,122 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AERO-OPS | {{ page_title|default:"Avalon Forward Base (AB-DEMO-01)" }} — NIC GovTech Portal</title>
+    <link rel="stylesheet" href="{% static 'css/govtech.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+</head>
+<body>
+    <!-- 1. Top NIC Utility Strip (#ffffff with #222222 text) -->
+    <div class="nic-utility-bar" role="navigation" aria-label="Government Utility Bar">
+        <div class="nic-utility-left">
+            Government National Informatics Centre (NIC) &middot; Ministry of Defence
+        </div>
+        <div class="nic-utility-right">
+            <span class="sim-active-pill">SIMULATION MODE: ACTIVE | Seed: 26250</span>
+            <span>|</span>
+            <span id="ws-conn-indicator" class="mono" style="font-weight:bold; color:#2e7d32;">WS: CONNECTING</span>
+            <span>|</span>
+            <a href="#main-workspace-content">Skip-to-content</a>
+            <span>|</span>
+            <a href="#main-workspace-content">Screen reader access</a>
+        </div>
+    </div>
+
+    <!-- 2. Deep Navy Header Bar (#002147) -->
+    <header class="mod-header-bar">
+        <div class="mod-brand-group">
+            <img src="{% static 'images/mod_emblem.svg' %}" alt="MoD Emblem" class="mod-emblem-svg">
+            <div>
+                <div class="mod-title-main">AERO-OPS</div>
+                <div class="mod-title-sub">
+                    {{ active_airbase_label|default:"Avalon Forward Base (AB-DEMO-01)" }} | Role: {{ active_role_label|default:"Airbase Commander" }}
+                </div>
+            </div>
+        </div>
+        <div class="mod-header-controls">
+            <span>Active Officer: <strong class="mono">{{ request.user.display_name|default:"CMDR V. SINGH" }}</strong></span>
+            <form method="post" action="{% url 'portal_switch_role' %}" style="display:inline-flex; align-items:center; gap:4px;">
+                {% csrf_token %}
+                <label for="demo-role-select" style="color:#d6e0f0;">Switch Demo Account:</label>
+                <select id="demo-role-select" name="username" class="role-switch-select" onchange="this.form.submit()">
+                    <option value="cmdr_vsingh" {% if request.user.username == "cmdr_vsingh" %}selected{% endif %}>CMDR V. SINGH (Airbase Commander - AB-DEMO-01)</option>
+                    <option value="sqldr_sharma" {% if request.user.username == "sqldr_sharma" %}selected{% endif %}>SQ. LDR. R. SHARMA (Squadron Leader - SQ-DEMO-01)</option>
+                    <option value="zonal_knair" {% if request.user.username == "zonal_knair" %}selected{% endif %}>AVM K. NAIR (Zonal Commander - ZONE-DEMO-A)</option>
+                </select>
+            </form>
+            <a href="{% url 'portal_login' %}" class="btn-gov btn-gov-xs" style="text-decoration:none;">Auth Portal</a>
+        </div>
+    </header>
+
+    <!-- 3. Demo Judge Runbook Bar (Visible to Demo-Authorised Roles — Section 15) -->
+    {% if can_control_simulation|default:True %}
+    <div class="judge-runbook-bar">
+        <div class="judge-runbook-left">
+            <span class="judge-label">SIH26250 Judge Runbook Controls:</span>
+            <button type="button" class="btn-gov btn-gov-xs btn-gov-primary" onclick="window.AeroOpsJudgeAction('start')">[1. Start Baseline Scenario]</button>
+            <button type="button" class="btn-gov btn-gov-xs btn-gov-danger" onclick="window.AeroOpsJudgeAction('inject_fault')">[2. Inject Sensor-03 Outage]</button>
+            <button type="button" class="btn-gov btn-gov-xs btn-gov-amber" onclick="window.AeroOpsJudgeAction('equip_maint')">[3. Trigger Equipment Maintenance]</button>
+            <button type="button" class="btn-gov btn-gov-xs" onclick="window.AeroOpsJudgeAction('reset')">[4. Reset Demo Seed 26250]</button>
+        </div>
+        <div class="mono" style="font-size:11px; color:#1f2937;">
+            Sim Clock: <strong id="sim-clock-display">2026-10-10T10:30:00Z</strong> | Wall Clock: <strong>UTC</strong>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 4. Main Portal Body Frame (220px Fixed Navy Left Sidebar + Workspace Stage) -->
+    <div class="portal-body-frame">
+        <aside class="mod-sidebar" aria-label="Primary Operational Navigation">
+            <ul class="mod-nav-list">
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link active" data-title="Ambala Base (AB-DEMO-01)" onclick="window.AeroOpsSwitchModule('dashboard', this)">&#9658; Airbase Dashboard</a>
+                </li>
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link" data-title="Base Infrastructure Registry" onclick="window.AeroOpsSwitchModule('infrastructure', this)">&#9658; Base Infrastructure</a>
+                </li>
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link" data-title="Fleet Management (25 IAF Register)" onclick="window.AeroOpsSwitchModule('fleet', this)">&#9658; Fleet Management</a>
+                </li>
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link" data-title="Crew Status &amp; FDTL Roster" onclick="window.AeroOpsSwitchModule('crew', this)">&#9658; Crew Status &amp; FDTL</a>
+                </li>
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link" data-title="Maintenance &amp; Refit Board" onclick="window.AeroOpsSwitchModule('maintenance', this)">&#9658; Maintenance &amp; Refit</a>
+                </li>
+                <li class="mod-nav-item">
+                    <a class="mod-nav-link" data-title="Scenario Playback &amp; Radar Map" onclick="window.AeroOpsSwitchModule('radar', this)">&#9658; Scenario Playback &amp; Radar</a>
+                </li>
+            </ul>
+            <div class="mod-sidebar-footer">
+                <div><strong>PROJECT ID:</strong> <span class="mono">SIH26250</span></div>
+                <div style="margin-top:3px;"><strong>DATA MODE:</strong> <span class="mono">SYNTHETIC</span></div>
+                <div style="margin-top:3px;"><strong>SRID:</strong> <span class="mono">EPSG:4326</span></div>
+                <div style="margin-top:6px; border-top:1px solid #163873; padding-top:4px;">
+                    <a href="/Commander/" style="color:#d6e0f0; text-decoration:underline;" onclick="window.location.href='{% url 'commander_dashboard' %}'; return false;">Airbase View</a> &middot;
+                    <a href="/squadron/" style="color:#d6e0f0; text-decoration:underline;">Squadron View</a> &middot;
+                    <a href="/zonal/" style="color:#d6e0f0; text-decoration:underline;">Zonal View</a>
+                </div>
+            </div>
+        </aside>
+
+        <main id="main-workspace-content" class="workspace-stage">
+            <!-- Breadcrumb Bar matching Variant C -->
+            <div class="breadcrumb-bar">
+                <div>
+                    Home &gt; Operations &gt; <strong id="breadcrumb-module-label">Ambala Base (AB-DEMO-01)</strong>
+                </div>
+                <div class="mono" style="font-size:11px; color:#4a5568;">
+                    Scope Guard: <strong>ENFORCED (HTTP 403 ON CROSS-SCOPE)</strong>
+                </div>
+            </div>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="{% static 'js/aero_ops.js' %}"></script>
+</body>
+</html>
