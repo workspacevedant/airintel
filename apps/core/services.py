@@ -89,6 +89,53 @@ ALLOWED_ALERT_TRANSITIONS: Dict[str, Set[str]] = {
     Alert.AlertStatus.RESOLVED: set(),
 }
 
+ALLOWED_MAINTENANCE_TASK_TRANSITIONS: Dict[str, Set[str]] = {
+    MaintenanceTask.TaskStatus.OPEN: {
+        MaintenanceTask.TaskStatus.IN_PROGRESS,
+        MaintenanceTask.TaskStatus.WAITING_PARTS,
+    },
+    MaintenanceTask.TaskStatus.IN_PROGRESS: {
+        MaintenanceTask.TaskStatus.WAITING_PARTS,
+        MaintenanceTask.TaskStatus.COMPLETED,
+    },
+    MaintenanceTask.TaskStatus.WAITING_PARTS: {
+        MaintenanceTask.TaskStatus.IN_PROGRESS,
+        MaintenanceTask.TaskStatus.COMPLETED,
+    },
+    MaintenanceTask.TaskStatus.COMPLETED: {
+        MaintenanceTask.TaskStatus.VERIFIED,
+        MaintenanceTask.TaskStatus.IN_PROGRESS,
+    },
+    MaintenanceTask.TaskStatus.VERIFIED: set(),
+}
+
+ALLOWED_CREW_DUTY_TRANSITIONS: Dict[str, Set[str]] = {
+    CrewReadiness.DutyState.READY: {
+        CrewReadiness.DutyState.ON_DUTY,
+        CrewReadiness.DutyState.REST_REQUIRED,
+        CrewReadiness.DutyState.TRAINING,
+        CrewReadiness.DutyState.UNAVAILABLE,
+    },
+    CrewReadiness.DutyState.ON_DUTY: {
+        CrewReadiness.DutyState.READY,
+        CrewReadiness.DutyState.REST_REQUIRED,
+        CrewReadiness.DutyState.UNAVAILABLE,
+    },
+    CrewReadiness.DutyState.REST_REQUIRED: {
+        CrewReadiness.DutyState.READY,
+        CrewReadiness.DutyState.TRAINING,
+    },
+    CrewReadiness.DutyState.TRAINING: {
+        CrewReadiness.DutyState.READY,
+        CrewReadiness.DutyState.REST_REQUIRED,
+        CrewReadiness.DutyState.ON_DUTY,
+    },
+    CrewReadiness.DutyState.UNAVAILABLE: {
+        CrewReadiness.DutyState.READY,
+        CrewReadiness.DutyState.TRAINING,
+    },
+}
+
 
 def broadcast_scoped_ws_event(
     groups: List[str],
@@ -666,3 +713,132 @@ def override_fdtl_or_infrastructure(
         )
     )
     return results
+
+
+@transaction.atomic
+def update_maintenance_task_status(
+    *,
+    actor: User,
+    task: MaintenanceTask,
+    new_status: str,
+    notes: Optional[str] = None,
+    reason: str = "Maintenance task status transition",
+) -> MaintenanceTask:
+    """
+    Validates maintenance task state machine:
+    OPEN -> IN_PROGRESS -> WAITING_PARTS -> COMPLETED -> VERIFIED
+    Rejects invalid transitions with ValidationError, audits valid ones in AuditLog with actor,
+    time, previous state, and reason (Section 05.5 & 11).
+    """
+    new_status_clean = str(new_status).upper().strip()
+    valid_statuses = {c[0] for c in MaintenanceTask.TaskStatus.choices}
+    if new_status_clean not in valid_statuses:
+        raise ValidationError(f"Invalid maintenance task status '{new_status}'. Allowed: {sorted(valid_statuses)}")
+
+    old_status = task.status
+    if old_status != new_status_clean:
+        allowed = ALLOWED_MAINTENANCE_TASK_TRANSITIONS.get(old_status, set())
+        if new_status_clean not in allowed:
+            raise ValidationError(
+                f"Invalid maintenance task transition: {old_status} -> {new_status_clean}."
+            )
+
+    now = timezone.now()
+    task.status = new_status_clean
+    if new_status_clean in (MaintenanceTask.TaskStatus.COMPLETED, MaintenanceTask.TaskStatus.VERIFIED):
+        task.completed_at = now
+    if notes:
+        task.notes = f"{task.notes}\n[{now.isoformat()}] {notes}".strip()
+    task.save()
+
+    AuditLog.objects.create(
+        actor=actor,
+        action="MAINTENANCE_TASK_STATUS_UPDATED",
+        object_type="MaintenanceTask",
+        object_id=task.fault_code,
+        before={"status": old_status},
+        after={"status": task.status, "reason": reason, "timestamp": now.isoformat()},
+        source="service:update_maintenance_task_status",
+    )
+
+    groups = [f"airbase_{task.equipment.airbase.code}"]
+    if task.equipment.airbase.zone:
+        groups.append(f"zone_{task.equipment.airbase.zone.code}")
+
+    transaction.on_commit(
+        lambda: broadcast_scoped_ws_event(
+            groups=groups,
+            message_type="maintenance.updated",
+            payload={
+                "task_id": str(task.id),
+                "fault_code": task.fault_code,
+                "equipment_code": task.equipment.fictional_code,
+                "previous_status": old_status,
+                "status": task.status,
+                "severity": task.severity,
+                "summary": f"Task {task.fault_code} transitioned {old_status} -> {task.status}",
+            },
+        )
+    )
+    return task
+
+
+@transaction.atomic
+def update_crew_duty_state(
+    *,
+    actor: User,
+    crew: CrewReadiness,
+    new_state: str,
+    fdtl_hours: Optional[Decimal] = None,
+    reason: str = "Crew duty state transition",
+) -> CrewReadiness:
+    """
+    Validates crew duty state machine:
+    READY <-> ON_DUTY, REST_REQUIRED, TRAINING, UNAVAILABLE
+    Enforces FDTL safety interlocks, audits changes with actor and previous state,
+    and recalculates base readiness (Section 05.5 & 11).
+    """
+    new_state_clean = str(new_state).upper().strip()
+    valid_states = {c[0] for c in CrewReadiness.DutyState.choices}
+    if new_state_clean not in valid_states:
+        raise ValidationError(f"Invalid crew duty state '{new_state}'. Allowed: {sorted(valid_states)}")
+
+    old_state = crew.duty_state
+    if old_state != new_state_clean:
+        allowed = ALLOWED_CREW_DUTY_TRANSITIONS.get(old_state, set())
+        if new_state_clean not in allowed:
+            raise ValidationError(f"Invalid crew duty transition: {old_state} -> {new_state_clean}.")
+
+    now = timezone.now()
+    if fdtl_hours is not None:
+        crew.fdtl_hours_logged = Decimal(str(fdtl_hours))
+
+    if crew.fdtl_hours_logged >= Decimal("8.00") and new_state_clean == CrewReadiness.DutyState.READY and crew.rest_required:
+        raise ValidationError(
+            f"FDTL Lockout: Cannot transition {crew.crew_ref} to READY while FDTL rest requirement is active ({crew.fdtl_hours_logged}/8.0h)."
+        )
+
+    if new_state_clean == CrewReadiness.DutyState.REST_REQUIRED:
+        crew.rest_required = True
+        crew.qualification_status = CrewReadiness.QualificationStatus.SUSPENDED
+    elif new_state_clean == CrewReadiness.DutyState.READY and not crew.rest_required:
+        crew.qualification_status = CrewReadiness.QualificationStatus.QUALIFIED
+
+    crew.duty_state = new_state_clean
+    crew.updated_by = actor
+    crew.updated_at = now
+    crew.save()
+
+    AuditLog.objects.create(
+        actor=actor,
+        action="CREW_DUTY_STATE_UPDATED",
+        object_type="CrewReadiness",
+        object_id=crew.crew_code or crew.crew_ref[:64],
+        before={"duty_state": old_state},
+        after={"duty_state": crew.duty_state, "fdtl_hours": float(crew.fdtl_hours_logged), "reason": reason},
+        source="service:update_crew_duty_state",
+    )
+
+    recalculate_airbase_readiness(crew.squadron.airbase, trigger_reason=f"crew:{crew.crew_ref}->{crew.duty_state}")
+    return crew
+

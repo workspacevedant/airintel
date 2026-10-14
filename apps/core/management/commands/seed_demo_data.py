@@ -95,7 +95,15 @@ class Command(BaseCommand):
             existing_tables = connection.introspection.table_names()
             to_truncate = [t for t in tables if t in existing_tables]
             if to_truncate:
-                cursor.execute(f'TRUNCATE TABLE {", ".join(to_truncate)} RESTART IDENTITY CASCADE;')
+                if connection.in_atomic_block:
+                    for t in to_truncate:
+                        cursor.execute(f'DELETE FROM "{t}";')
+                else:
+                    try:
+                        cursor.execute(f'TRUNCATE TABLE {", ".join(to_truncate)} RESTART IDENTITY CASCADE;')
+                    except Exception:
+                        for t in to_truncate:
+                            cursor.execute(f'DELETE FROM "{t}";')
 
     @transaction.atomic
     def handle(self, *args, **options):

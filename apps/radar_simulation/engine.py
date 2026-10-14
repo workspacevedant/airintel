@@ -541,3 +541,116 @@ class HybridRadarEngine:
             "scenario_code": self.scenario_code,
             "timestamp": timezone.now().isoformat(),
         }
+
+    def get_status(self, run: Optional[SimulationRun] = None) -> Dict[str, Any]:
+        """
+        Feed health indicators (Section 06):
+        Reports current runner state, freshness (LIVE, STALE, PAUSED, OFFLINE),
+        heartbeat, last-event timestamp, and current sequence number.
+        """
+        if run is None:
+            run = self.get_or_create_scenario_and_run()
+
+        now = timezone.now()
+        elapsed = (now - run.last_heartbeat_at).total_seconds()
+
+        if run.state == SimulationRun.RunState.PAUSED:
+            freshness_state = "PAUSED"
+        elif elapsed > 60:
+            freshness_state = "OFFLINE"
+        elif elapsed > 15:
+            freshness_state = "STALE"
+        else:
+            freshness_state = "LIVE"
+
+        last_event = Event.objects.filter(scenario_id=self.scenario_code).order_by("-occurred_at").first()
+
+        return {
+            "run_code": run.run_code,
+            "scenario_code": self.scenario_code,
+            "state": run.state,
+            "freshness": freshness_state,
+            "seed": self.seed,
+            "current_sequence": run.current_sequence,
+            "simulated_clock": run.simulated_clock.isoformat(),
+            "last_heartbeat_at": run.last_heartbeat_at.isoformat(),
+            "heartbeat_age_seconds": round(elapsed, 1),
+            "last_event_id": last_event.event_id if last_event else None,
+            "last_event_timestamp": last_event.occurred_at.isoformat() if last_event else None,
+        }
+
+    @transaction.atomic
+    def ingest_observation(
+        self,
+        *,
+        event_id: str,
+        sensor_code: str,
+        track_code: str,
+        lat: float,
+        lon: float,
+        bearing: float,
+        range_km: float,
+        altitude_m: float = 10000.0,
+        speed_kts: float = 500.0,
+        quality: str = "simulated",
+        occurred_at: Optional[Any] = None,
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Idempotent observation and event ingestion (Section 06 & 07).
+        Persists first to DB, enforces duplicate event ID rejection/ignoring,
+        and broadcasts only upon commit.
+        """
+        now = timezone.now()
+        occurred_ts = occurred_at or now
+        idem_key = f"idem-{event_id}"
+
+        envelope = build_event_envelope(
+            event_id=event_id,
+            scenario_id=self.scenario_code,
+            source_type="synthetic_sensor",
+            source_id=sensor_code,
+            event_type="OBSERVATION_INGESTED",
+            occurred_at=occurred_ts,
+            quality=quality,
+            payload=payload or {
+                "track_code": track_code,
+                "lat": lat,
+                "lon": lon,
+                "bearing": bearing,
+                "range_km": range_km,
+            },
+        )
+
+        event_obj, created = Event.objects.get_or_create(
+            idempotency_key=idem_key,
+            defaults={
+                "event_id": event_id,
+                "scenario_id": self.scenario_code,
+                "event_type": "OBSERVATION_INGESTED",
+                "source_type": "synthetic_sensor",
+                "source_id": sensor_code,
+                "occurred_at": occurred_ts,
+                "received_at": now,
+                "quality": quality,
+                "payload": envelope["payload"],
+            },
+        )
+
+        if created:
+            target_groups = ["zone_ZONE-DEMO-A", "airbase_AB-DEMO-01"]
+            transaction.on_commit(
+                lambda: broadcast_scoped_ws_event(
+                    groups=target_groups,
+                    message_type="event.created",
+                    payload=envelope,
+                )
+            )
+
+        return {
+            "event_id": event_obj.event_id,
+            "created": created,
+            "duplicate_ignored": not created,
+            "envelope": envelope,
+        }
+
