@@ -58,6 +58,8 @@ from apps.core.selectors import (
 from apps.core.services import (
     acknowledge_order_or_alert,
     override_fdtl_or_infrastructure,
+    transition_crew_report_status,
+    update_crew_duty_state,
     update_equipment_status,
 )
 from apps.radar_simulation.engine import HybridRadarEngine
@@ -530,7 +532,108 @@ def api_crew_list_view(request: HttpRequest) -> JsonResponse:
     )
 
 
-# -------------------------------------------------------------------------
+@require_http_methods(["POST", "PATCH"])
+def api_crew_status_update_view(request: HttpRequest, crew_id: str) -> JsonResponse:
+    """
+    POST / PATCH /api/crew/<crew_id>/status/
+    Updates crew duty state and/or crew readiness report status (Section 05.2, 05.5 & 10).
+    Scope-isolated:
+    - Squadron Leader can only update crew within their assigned squadron.
+    - Airbase Commander can review reports and update crew within their airbase.
+    - Zonal Commander / unscoped users cannot directly mutate squadron crew.
+    """
+    try:
+        user = _require_auth(request)
+        ctx = enforce_query_scope(user, request)
+    except PermissionDenied as exc:
+        return _json_error(str(exc), status=403)
+
+    crew = CrewReadiness.objects.filter(pk=crew_id).select_related("squadron", "squadron__airbase").first()
+    if not crew:
+        crew = CrewReadiness.objects.filter(crew_code__iexact=crew_id).select_related("squadron", "squadron__airbase").first()
+    if not crew:
+        return _json_error("Crew member not found.", status=404)
+
+    # Strict scope isolation checks
+    if ctx.is_squadron_leader:
+        if crew.squadron.code not in ctx.squadron_codes:
+            log_security_denial(
+                user=user,
+                action="CROSS_SQUADRON_CREW_MUTATE_BLOCKED",
+                object_type="CrewReadiness",
+                object_id=str(crew.id),
+                reason="Squadron leader attempted to mutate crew in another squadron.",
+            )
+            return _json_error("Forbidden: You cannot modify crew outside your assigned squadron.", status=403)
+    elif ctx.is_airbase_commander:
+        if crew.squadron.airbase and crew.squadron.airbase.code not in ctx.airbase_codes:
+            return _json_error("Forbidden: You cannot modify crew outside your assigned airbase.", status=403)
+    elif not user.is_staff:
+        log_security_denial(
+            user=user,
+            action="UNAUTHORIZED_CREW_MUTATION_BLOCKED",
+            object_type="CrewReadiness",
+            object_id=str(crew.id),
+            reason="User role does not allow modifying unit-level crew records.",
+        )
+        return _json_error("Forbidden: Your role does not allow modifying unit-level crew records.", status=403)
+
+    try:
+        data = _parse_body(request)
+    except ValidationError as exc:
+        return _json_error(str(exc), status=400)
+
+    duty_state = data.get("duty_state")
+    report_status = data.get("report_status")
+    fdtl_hours = data.get("fdtl_hours")
+    notes = data.get("notes")
+    reason = data.get("reason", "API crew status update")
+
+    try:
+        if duty_state:
+            update_crew_duty_state(
+                actor=user,
+                crew=crew,
+                new_state=duty_state,
+                fdtl_hours=fdtl_hours,
+                reason=reason,
+            )
+        if report_status:
+            transition_crew_report_status(
+                actor=user,
+                crew=crew,
+                new_report_status=report_status,
+                notes=notes,
+            )
+        elif notes is not None and not duty_state:
+            crew.notes = notes
+            crew.updated_by = user
+            crew.updated_at = timezone.now()
+            crew.save(update_fields=["notes", "updated_by", "updated_at"])
+    except ValidationError as exc:
+        return _json_error(str(exc), status=400)
+    except PermissionDenied as exc:
+        return _json_error(str(exc), status=403)
+
+    crew.refresh_from_db()
+    return JsonResponse(
+        {
+            "status": "success",
+            "message": f"Updated crew record {crew.crew_ref}.",
+            "crew": {
+                "id": str(crew.id),
+                "crew_ref": crew.crew_ref,
+                "crew_code": crew.crew_code,
+                "duty_state": crew.duty_state,
+                "report_status": crew.report_status,
+                "fdtl_hours_logged": float(crew.fdtl_hours_logged),
+                "rest_required": crew.rest_required,
+                "qualification_status": crew.qualification_status,
+                "notes": crew.notes,
+            },
+        }
+    )
+
 # 5. MAINTENANCE ENDPOINTS (GET/POST /api/maintenance/)
 # -------------------------------------------------------------------------
 @require_http_methods(["GET", "POST"])
@@ -918,6 +1021,7 @@ def api_suggestions_list_view(request: HttpRequest) -> JsonResponse:
                 "reasons": s.reasons,
                 "input_snapshot": s.input_snapshot,
                 "data_mode": s.data_mode,
+                "disclaimer": "synthetic, advisory only",
                 "created_at": s.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             }
         )

@@ -12,7 +12,7 @@ from decimal import Decimal
 from typing import Any, Dict, List, Optional, Set, Union
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.utils import timezone
 
@@ -36,6 +36,7 @@ from apps.core.permissions import (
     assert_can_mutate_airbase,
     assert_can_update_crew,
     assert_can_update_equipment,
+    get_user_scope,
 )
 
 
@@ -840,5 +841,63 @@ def update_crew_duty_state(
     )
 
     recalculate_airbase_readiness(crew.squadron.airbase, trigger_reason=f"crew:{crew.crew_ref}->{crew.duty_state}")
+    return crew
+
+
+ALLOWED_CREW_REPORT_TRANSITIONS: Dict[str, Set[str]] = {
+    "DRAFT": {"SUBMITTED"},
+    "SUBMITTED": {"REVIEWED", "DRAFT"},
+    "REVIEWED": {"DRAFT"},
+}
+
+
+@transaction.atomic
+def transition_crew_report_status(
+    *,
+    actor: User,
+    crew: CrewReadiness,
+    new_report_status: str,
+    notes: Optional[str] = None,
+) -> CrewReadiness:
+    """
+    Transitions crew readiness report workflow status:
+    DRAFT -> SUBMITTED -> REVIEWED (Section 05.2 & 05.5).
+    Enforces role authority (Airbase Commander / supervisor required for REVIEWED approval)
+    and logs all transitions to the immutable audit trail.
+    """
+    new_status_clean = str(new_report_status).upper().strip()
+    valid_statuses = {"DRAFT", "SUBMITTED", "REVIEWED"}
+    if new_status_clean not in valid_statuses:
+        raise ValidationError(f"Invalid crew report status '{new_report_status}'. Allowed: {sorted(valid_statuses)}")
+
+    old_status = getattr(crew, "report_status", "REVIEWED") or "REVIEWED"
+    allowed = ALLOWED_CREW_REPORT_TRANSITIONS.get(old_status, set())
+    if new_status_clean != old_status and new_status_clean not in allowed:
+        raise ValidationError(f"Invalid crew report transition: {old_status} -> {new_status_clean}.")
+
+    ctx = get_user_scope(actor)
+    if new_status_clean == "REVIEWED" and not (ctx.is_airbase_commander or ctx.is_zonal_commander or actor.is_staff):
+        raise PermissionDenied("Only Airbase Commander or supervisory officer may review/approve crew readiness reports.")
+
+    crew.report_status = new_status_clean
+    if notes is not None:
+        crew.notes = notes
+    crew.updated_by = actor
+    crew.updated_at = timezone.now()
+    crew.save(update_fields=["report_status", "notes", "updated_by", "updated_at"])
+
+    AuditLog.objects.create(
+        actor=actor,
+        action="CREW_REPORT_STATUS_TRANSITION",
+        object_type="CrewReadiness",
+        object_id=crew.crew_code or crew.crew_ref[:64],
+        before={"report_status": old_status},
+        after={
+            "report_status": new_status_clean,
+            "notes": crew.notes,
+            "reason": f"Transitioned report status from {old_status} to {new_status_clean}",
+        },
+        source="service:transition_crew_report_status",
+    )
     return crew
 

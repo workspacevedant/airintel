@@ -455,7 +455,8 @@ def get_authorised_ws_groups(user: User) -> Set[str]:
         if not ctx.is_squadron_leader or ctx.is_airbase_commander or ctx.is_zonal_commander:
             groups.add(f"zone_{z_code}")
     for ab_code in ctx.airbase_codes:
-        groups.add(f"airbase_{ab_code}")
+        if not ctx.is_squadron_leader or ctx.is_airbase_commander:
+            groups.add(f"airbase_{ab_code}")
     for sq_code in ctx.squadron_codes:
         groups.add(f"squadron_{sq_code}")
     return groups
