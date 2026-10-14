@@ -40,8 +40,10 @@ if not raw_secret_key:
         raise ImproperlyConfigured("DJANGO_SECRET_KEY environment variable is required outside DEMO_MODE.")
 SECRET_KEY = raw_secret_key
 
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS", default=["localhost", "127.0.0.1", "0.0.0.0", "web", "testserver"])
+if isinstance(ALLOWED_HOSTS, list) and "testserver" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("testserver")
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default=["http://localhost:8000", "http://127.0.0.1:8000", "http://localhost:5008"])
 
 INSTALLED_APPS = [
     "daphne",

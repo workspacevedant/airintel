@@ -60,4 +60,8 @@ urlpatterns = [
         views.api_role_assignment_review_view,
         name="api_admin_role_assignment_review",
     ),
+    # System Health Check Endpoint (Phase 8)
+    path("health/", views.api_health_check_view, name="health_check"),
+    path("health", views.api_health_check_view, name="health_check_no_slash"),
 ]
+

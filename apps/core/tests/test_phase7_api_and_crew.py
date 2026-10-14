@@ -226,3 +226,20 @@ class Phase7APIAndCrewTests(TestCase):
         event_id = step_result.get("event_envelope", {}).get("event_id")
         self.assertIsNotNone(event_id)
         self.assertTrue(Event.objects.filter(event_id=event_id).exists())
+
+    def test_phase8_health_endpoint(self):
+        """GET /health/ and /health return 200 with status, db, redis, simulation state."""
+        # Unauthenticated request to /health/
+        resp = self.client.get("/health/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertEqual(data["db"], "ok")
+        self.assertIn("ok", data["redis"])
+        self.assertIn("ready", data["simulation"])
+
+        # Unauthenticated request to /health
+        resp_no_slash = self.client.get("/health")
+        self.assertEqual(resp_no_slash.status_code, 200)
+        data_no_slash = resp_no_slash.json()
+        self.assertEqual(data_no_slash["status"], "ok")

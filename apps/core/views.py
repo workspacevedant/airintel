@@ -1291,3 +1291,56 @@ def api_role_assignment_review_view(request: HttpRequest, assignment_id: str) ->
         "after": after_state,
     })
 
+
+@require_http_methods(["GET"])
+def api_health_check_view(request: HttpRequest) -> JsonResponse:
+    """
+    GET /health/ or /health
+    Health check endpoint returning {status, db, redis, simulation} (Section 15/16 Demo runbook).
+    Publicly accessible so operators and health checkers can verify stack status before speaking.
+    """
+    from django.db import connection
+    from channels.layers import get_channel_layer
+    from apps.radar_simulation.models import SimulationRun
+
+    db_status = "ok"
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except Exception as exc:
+        db_status = f"unhealthy: {exc}"
+
+    redis_status = "ok"
+    try:
+        channel_layer = get_channel_layer()
+        if channel_layer is None:
+            redis_status = "unavailable"
+    except Exception as exc:
+        redis_status = f"unhealthy: {exc}"
+
+    sim_status = "ready"
+    try:
+        run = SimulationRun.objects.order_by("-started_at").first()
+        if run:
+            sim_status = f"ready ({run.state})"
+        else:
+            sim_status = "ready (idle)"
+    except Exception as exc:
+        sim_status = f"unhealthy: {exc}"
+
+    is_healthy = (
+        db_status == "ok"
+        and not redis_status.startswith("unhealthy")
+        and not sim_status.startswith("unhealthy")
+    )
+
+    return JsonResponse(
+        {
+            "status": "ok" if is_healthy else "unhealthy",
+            "db": db_status,
+            "redis": redis_status,
+            "simulation": sim_status,
+        },
+        status=200 if is_healthy else 503,
+    )
+
